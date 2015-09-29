@@ -1,0 +1,47 @@
+{
+  "name": "jsDataAccess",
+  "version": "1.0.1",
+  "description": "Facilities to access a database without knowing exactly the database type or implementation details",
+  "main": "src/jsDataAccess.js",
+  "scripts": {
+    "test": "grunt test"
+  },
+  "dependencies": {
+    "lodash": "~3.1.0",
+    "JQDeferred": "^2.1.0",
+    "async": "~1.4.0",
+    "jsDataSet": "git://github.com/gaelazzo/jsDataSet.git",
+    "jsDataQuery": "git://github.com/gaelazzo/jsDataQuery.git",
+    "jsMultiSelect":"git://github.com/gaelazzo/jsMultiSelect.git"
+  },
+  "devDependencies": {
+    "jsSqlServerDriver":"git://github.com/gaelazzo/jsSqlServerDriver.git",
+    "grunt": "~0.4.0",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-contrib-yuidoc": "^0.7.0",
+    "jasmine-core": "^2.2.0",
+    "jasmine-node": "2.0.0-beta4",
+    "grunt-jasmine-node-new": "^0.3.2",
+    "jasmine-collection-matchers":"*",
+    "load-grunt-tasks": "^3.1.0",
+    "time-grunt": "^1.0.0"
+
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gaelazzo/jsMultiSelect"
+  },
+  "keywords": [
+    "query",
+    "database",
+    "javascript",
+    "sql",
+    "multiple table"
+  ],
+  "author": "Gaetano Lazzo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gaelazzo/jsMultiSelect/issues"
+  },
+  "homepage": "https://github.com/gaelazzo/jsMultiSelect#readme"
+}

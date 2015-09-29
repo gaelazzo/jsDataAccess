@@ -12,16 +12,18 @@ CREATE TABLE [dbo].[customer](
 	[surname] [varchar](100) NULL,
 	[stamp] [datetime] NULL,
 	random [int] NULL,
-	curr decimal(19,2) NULL
+	curr decimal(19,2) NULL,
+	cat int null,
+	cat20 int null,
  CONSTRAINT [PK_customer] PRIMARY KEY CLUSTERED ([idcustomer] ASC ) ON [PRIMARY]
 ) ON [PRIMARY]
 
 GO
 declare @i int
-set @i=0
+set @i=1
 select RAND(100)
 while (@i<500) BEGIN
-insert into customer(idcustomer,name,age,birth,surname,stamp,random,curr) values(
+insert into customer(idcustomer,name,age,birth,surname,stamp,random,curr,cat,cat20) values(
 			 @i,
 			 'name'+convert(varchar(10),@i)
 			,10+@i,
@@ -29,7 +31,9 @@ insert into customer(idcustomer,name,age,birth,surname,stamp,random,curr) values
 			'surname_'++convert(varchar(10),@i*2+100000),
 			getdate(),
 			RAND()*1000,
-			RAND()*10000
+			RAND()*10000,
+			@i/5,
+			@i/20 +1
 		)
 set @i=@i+1
 end
@@ -55,9 +59,9 @@ CREATE TABLE [dbo].[seller](
 GO
 
 declare @i int
-set @i=0
+set @i=1
 select RAND(1000)
-while (@i<60) BEGIN
+while (@i<600) BEGIN
 insert into seller (idseller,name,age,birth,surname,stamp,random,curr,cf) values(
 			 @i,
 			 'name'+convert(varchar(10),@i)
@@ -92,7 +96,7 @@ GO
 declare @i int
 set @i=0
 select RAND(1000)
-while (@i<20) BEGIN
+while (@i<50) BEGIN
 insert into sellerkind (idsellerkind,name,rnd) values(
 			 @i*30,
 			 'name'+convert(varchar(10),@i*30),
@@ -117,9 +121,9 @@ CREATE TABLE [dbo].[customerkind](
 GO
 
 declare @i int
-set @i=0
+set @i=1
 select RAND(1000)
-while (@i<40) BEGIN
+while (@i<=80) BEGIN
 insert into customerkind (idcustomerkind,name,rnd) values(
 			 @i*3,
 			 'name'+convert(varchar(10),@i*3),
@@ -174,8 +178,8 @@ AS
 BEGIN
 	select top 100 * from customer
 	select top 100 * from seller
-	select top 10 * from customerkind as c2
-	select top 10 * from sellerkind as s2
+	select top 40 * from customerkind as c2
+	select top 50 * from sellerkind as s2
 END
 
 

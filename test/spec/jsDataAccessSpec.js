@@ -7,7 +7,7 @@
 
 
 
-var DA = require('../../src/dataAccess');
+var DA = require('../../src/jsDataAccess');
 
 var mSel = require('jsMultiSelect');
 var Select = mSel.Select;
@@ -143,7 +143,7 @@ describe('dataAccess ', function () {
   });
 
   it('readValue should return a single value', function (done) {
-    DAC.readSingleValue({tableName: 'operatore', expr: $dq.max($dq.field('idoperatore'))})
+    DAC.readSingleValue({tableName: 'customer', expr: $dq.max($dq.field('idcustomer'))})
       .then(function (o) {
         expect(o).toBeGreaterThan(1);
         done();
@@ -155,7 +155,7 @@ describe('dataAccess ', function () {
   });
 
   it('readValue should return a single value', function (done) {
-    DAC.readSingleValue({tableName: 'operatore', expr: $dq.field('idoperatore'), orderBy: 'idoperatore asc'})
+    DAC.readSingleValue({tableName: 'customer', expr: $dq.field('idcustomer'), orderBy: 'idcustomer asc'})
       .then(function (o) {
         expect(o).toBe(1);
         done();
@@ -166,17 +166,7 @@ describe('dataAccess ', function () {
       });
   });
 
-  it('readValue should return a single value', function (done) {
-    DAC.readSingleValue({tableName: 'operatore', expr: $dq.field('idoperatore'), orderBy: 'idoperatore asc'})
-      .then(function (o) {
-        expect(o).toBe(1);
-        done();
-      },
-      function (err) {
-        expect(err).toBeUndefined();
-        done();
-      });
-  });
+
 
   it('runCmd should return a single value', function (done) {
     DAC.runCmd('select  2+2')
@@ -226,13 +216,14 @@ describe('dataAccess ', function () {
   });
 
   it('doSingleInsert should have success', function (done) {
-    var res = DAC.doSingleDelete({tableName: 'sedefornitore',
-      filter: $dq.and($dq.eq('idfornitore', 1), $dq.eq('idsede', 1))
+    var res = DAC.doSingleDelete({tableName: 'customer',
+      filter: $dq.and($dq.eq('idcustomer', 13000))
     });
     res.always(function () {
-        DAC.doSingleInsert('sedefornitore',
-          ['idsede', 'idcitta', 'indirizzo', 'cap', 'idfornitore', 'createuser', 'createtimestamp', 'lastmoduser', 'lastmodtimestamp'],
-          [1, 1, '\'no address\'', '\'nocap\'', 1, '\'node\'', '10-12-2013', '\'node\'', '10-12-2013']
+          var q  = DAC.getFormatter().quote;
+        DAC.doSingleInsert('customer',
+          ['idcustomer', 'name',           'age', 'birth', 'surname', 'stamp', 'random', 'curr' ],
+          [13000,     'sampleCustomer', 12,  new Date(1980,11,3),'ciao',new Date(2012,1,30),120,122]
         )
           .done(function (result) {
             expect(result.rowcount).toBe(1);
@@ -246,28 +237,30 @@ describe('dataAccess ', function () {
       }
     );
   });
-
+//customer(idcustomer,name,age,birth,surname,stamp,random,curr)
   /*
    PROCEDURE testSP3
    @esercizio int = 0
    AS
    BEGIN
-   select top 100 * from ticket
-   select top 100 * from swprocess
-   select top 100 * from cliente
-   select top 100 * from telefonocliente
+   select top 100 * from customer
+   select top 100 * from seller
+   select top 40 * from customerkind as c2
+   select top 50 * from sellerkind as s2
    END
    */
   it('callSP should get multiple tables ', function (done) {
-    var ntables = 0;
+    var ntables = 0,
+      sizes =[100,100,40,50];
+
     DAC.callSP('testSP3', [2013])
       .progress(function (res) {
-        ntables += 1;
-        expect(res.length).toBe(100);
+          expect(res.length).toBe(sizes[ntables]);
+          ntables += 1;
       })
       .done(function (res) {
         ntables += 1;
-        expect(res.length).toBe(100);
+        expect(res.length).toBe(50);
         expect(ntables).toBe(4);
         done();
       })
@@ -281,12 +274,12 @@ describe('dataAccess ', function () {
   it('selectRows should give rows one at a time', function (done) {
     var nRows = 0;
     DAC.selectRows({
-      tableName: 'citta',
+      tableName: 'customer',
       top: '10'})
       .progress(function (r) {
         if (r.row) {
           nRows += 1;
-          expect(r.row.idcitta).toBeDefined();
+          expect(r.row.idcustomer).toBeDefined();
         }
       })
       .done(function (res) {
@@ -303,13 +296,13 @@ describe('dataAccess ', function () {
   it('selectRows should give rows one at a time (raw)', function (done) {
     var nRows = 0;
     DAC.selectRows({
-        tableName: 'citta',
+        tableName: 'customer',
         top: '10'},
       true)
       .progress(function (r) {
         if (r.row) {
           nRows += 1;
-          expect(r.row.idcitta).toBeUndefined();
+          expect(r.row.idcustomer).toBeUndefined();
         }
       })
       .done(function (res) {
@@ -326,7 +319,7 @@ describe('dataAccess ', function () {
     var nPackets = 0,
       nRows = 0;
     DAC.queryPackets({
-      tableName: 'telefonocliente',
+      tableName: 'customerkind',
       top: '50'
     }, 6, false)
       .progress(function (r) {
@@ -350,7 +343,7 @@ describe('dataAccess ', function () {
     var nPackets = 0,
       nRows = 0;
     DAC.queryPackets({
-      tableName: 'telefonocliente',
+      tableName: 'customerkind',
       top: '50'
     }, 6, true)
       .progress(function (r) {
@@ -374,7 +367,7 @@ describe('dataAccess ', function () {
     var nPackets = 0,
       nRows = 0;
     DAC.queryPackets({
-      tableName: 'telefonocliente',
+      tableName: 'customer',
       top: '50'
     }, 100, false)
       .progress(function (r) {
@@ -389,7 +382,6 @@ describe('dataAccess ', function () {
         done();
       })
       .fail(function (err) {
-        console.log(err);
         expect(err).toBeUndefined();
         done();
       });
@@ -399,8 +391,8 @@ describe('dataAccess ', function () {
     var nPackets = 0,
       nRows = 0;
     DAC.queryPackets({
-      tableName: 'telefonocliente',
-      filter: $dq.eq('idtelefono', -12),
+      tableName: 'customer',
+      filter: $dq.eq('idcustomer', -12),
       top: '50'
     }, 100, false)
       .progress(function (r) {
@@ -422,8 +414,8 @@ describe('dataAccess ', function () {
     var nPackets = 0,
       nRows = 0;
     DAC.queryPackets({
-      tableName: 'telefonocliente',
-      filter: $dq.eq('idtelefono', -12),
+      tableName: 'customer',
+      filter: $dq.eq('idcustomer', -12),
       top: '50'
     }, 100, true)
       .progress(function (r) {
@@ -442,12 +434,12 @@ describe('dataAccess ', function () {
   });
 
   it('objectify should transform raw data into objects', function (done) {
-    DAC.runSql('select top 3 * from ticket where idticket<2000', false)
+    DAC.runSql('select top 3 * from customer where idcustomer<2000', false)
       .then(function (resObject) {
         expect(resObject).toEqual(jasmine.any(Array));
         expect(resObject.length).toBe(3);
 
-        DAC.runSql('select top 3 * from ticket where idticket<2000', true)
+        DAC.runSql('select top 3 * from customer where idcustomer<2000', true)
           .done(function (res) {
             var obj = DA.objectify(res.meta, res.rows);
             expect(res.rows.length).toBe(3);
@@ -470,9 +462,9 @@ describe('dataAccess ', function () {
 
 
   it('raw data read should be quick', function (done) {
-    DAC.runSql('select top 1100 *  from ticketview', true)
+    DAC.runSql('select top 500 *  from customer', true)
       .then(function (resObject) {
-        DAC.runSql('select top 1100 *  from ticketview', true)
+        DAC.runSql('select top 500 *  from customer', true)
           .done(function (res) {
             expect(res.rows).toEqual(resObject.rows);
             expect(res.meta).toEqual(resObject.meta);
@@ -490,15 +482,15 @@ describe('dataAccess ', function () {
   });
 
   it('select should give a table', function(done){
-    var sel = DAC.select({tableName:'statoticket',
-      columns:'idstatoticket,descrizione',
+    var sel = DAC.select({tableName:'customer',
+      columns:'idcustomer,name',
       applySecurity:false});
     sel.done(function(result){
-      expect(result.tableName).toBe('statoticket');
+      expect(result.tableName).toBe('customer');
       expect(result).toEqual(jasmine.any(Array));
       expect(result.length).toBeGreaterThan(0);
-      expect(result[0].idstatoticket).toBeDefined();
-      expect(result[0].descrizione).toBeDefined();
+      expect(result[0].idcustomer).toBeDefined();
+      expect(result[0].name).toBeDefined();
       done();
     })
   });
@@ -506,9 +498,9 @@ describe('dataAccess ', function () {
   it('multiSelect should give multiple tables', function (done) {
     var multiSel = [],
       tableCount = 0;
-    multiSel.push(new Select('*').from('cliente').multiCompare(new MultiCompare(['idente'], [2])));
-    multiSel.push(new Select('*').from('ente').multiCompare(new MultiCompare(['idente'], [1])));
-    multiSel.push(new Select('*').from('tipotelefono'));
+    multiSel.push(new Select('*').from('customer').multiCompare(new MultiCompare(['idcustomer'], [2])));
+    multiSel.push(new Select('*').from('customerkind').multiCompare(new MultiCompare(['idcustomerkind'], [3])));
+    multiSel.push(new Select('*').from('sellerkind'));
     var mSel = DAC.multiSelect({selectList: multiSel});
     mSel.progress(function (r) {
       tableCount += 1;
@@ -528,10 +520,10 @@ describe('dataAccess ', function () {
       var multiSel = [],
         tableCount = 0,
         tables = {};
-      multiSel.push(new Select('*').from('cliente')
-          .multiCompare(new MultiCompare(['idente'], [2])).intoTable('A').top('5'));
-      multiSel.push(new Select('*').from('ente').multiCompare(new MultiCompare(['idente'], [1])).intoTable('B'));
-      multiSel.push(new Select('*').from('tipotelefono'));
+      multiSel.push(new Select('*').from('customer')
+          .multiCompare(new MultiCompare(['cat'], [4])).intoTable('A').top('5'));
+      multiSel.push(new Select('*').from('seller').multiCompare(new MultiCompare(['idseller'], [1])).intoTable('B'));
+      multiSel.push(new Select('*').from('customerkind'));
       var mSel = DAC.multiSelect({selectList: multiSel});
       mSel.progress(function (r) {
         tableCount += 1;
@@ -546,10 +538,10 @@ describe('dataAccess ', function () {
         expect(tables.A.length).toBe(5);
         expect(tables.B).toBeDefined();
         expect(tables.B.length).toBe(1);
-        expect(tables.tipotelefono).toBeDefined();
-        expect(tables.A[0].idente).toBeDefined();
-        expect(tables.B[0].idente).toBeDefined();
-        expect(tables.tipotelefono[0].idtipotelefono).toBeDefined();
+        expect(tables.customerkind).toBeDefined();
+        expect(tables.A[0].idcustomer).toBeDefined();
+        expect(tables.B[0].idseller).toBeDefined();
+        expect(tables.customerkind[0].idcustomerkind).toBeDefined();
         expect(tableCount).toBe(3);
         done();
       });
@@ -563,10 +555,10 @@ describe('dataAccess ', function () {
     var multiSel = [],
       tableCount = 0,
       tables = {};
-    multiSel.push(new Select('*').from('cliente')
-      .multiCompare(new MultiCompare(['idente'], [2])).intoTable('A').top('5'));
-    multiSel.push(new Select('*').from('ente').multiCompare(new MultiCompare(['idente'], [1])).intoTable('B'));
-    multiSel.push(new Select('*').from('tipotelefono'));
+    multiSel.push(new Select('*').from('customer')
+      .multiCompare(new MultiCompare(['cat'], [2])).intoTable('A').top('5'));
+    multiSel.push(new Select('*').from('seller').multiCompare(new MultiCompare(['idseller'], [3])).intoTable('B'));
+    multiSel.push(new Select('*').from('customerkind'));
     var mSel = DAC.multiSelect({selectList: multiSel, raw:true});
     mSel.progress(function (r) {
       tableCount += 1;
@@ -582,11 +574,11 @@ describe('dataAccess ', function () {
       expect(tables.A.length).toBe(5);
       expect(tables.B).toBeDefined();
       expect(tables.B.length).toBe(1);
-      expect(tables.tipotelefono).toBeDefined();
+      expect(tables.customerkind).toBeDefined();
       expect(tableCount).toBe(3);
-      expect(tables.A[0].idente).toBeDefined();
-      expect(tables.B[0].idente).toBeDefined();
-      expect(tables.tipotelefono[0].idtipotelefono).toBeDefined();
+      expect(tables.A[0].idcustomer).toBeDefined();
+      expect(tables.B[0].idseller).toBeDefined();
+      expect(tables.customerkind[0].idcustomerkind).toBeDefined();
 
       done();
     });
@@ -600,10 +592,10 @@ describe('dataAccess ', function () {
     var multiSel = [],
       tableCount = 0,
       tables = {};
-    multiSel.push(new Select('*').from('cliente')
-      .multiCompare(new MultiCompare(['idente'], [2])).intoTable('A'));
-    multiSel.push(new Select('*').from('ente').multiCompare(new MultiCompare(['idente'], [1])).intoTable('B'));
-    multiSel.push(new Select('*').from('tipotelefono'));
+    multiSel.push(new Select('*').from('customer')
+      .multiCompare(new MultiCompare(['cat20'], [2])).intoTable('A'));
+    multiSel.push(new Select('*').from('seller').multiCompare(new MultiCompare(['idseller'], [6])).intoTable('B'));
+    multiSel.push(new Select('*').from('customerkind'));
     var mSel = DAC.multiSelect({selectList: multiSel,packetSize:5});
     mSel.progress(function (r) {
       if (!tables[r.tableName]){
@@ -622,11 +614,11 @@ describe('dataAccess ', function () {
       expect(tables.A.length).toBeGreaterThan(5);
       expect(tables.B).toBeDefined();
       expect(tables.B.length).toBe(1);
-      expect(tables.tipotelefono).toBeDefined();
+      expect(tables.customerkind).toBeDefined();
       expect(tableCount).toBe(3);
-      expect(tables.A[0].idente).toBeDefined();
-      expect(tables.B[0].idente).toBeDefined();
-      expect(tables.tipotelefono[0].idtipotelefono).toBeDefined();
+      expect(tables.A[0].idcustomer).toBeDefined();
+      expect(tables.B[0].idseller).toBeDefined();
+      expect(tables.customerkind[0].idcustomerkind).toBeDefined();
       done();
     });
     mSel.fail(function (err) {
@@ -640,10 +632,10 @@ describe('dataAccess ', function () {
     var multiSel = [],
       tableCount = 0,
       tables = {};
-    multiSel.push(new Select('*').from('cliente')
-      .multiCompare(new MultiCompare(['idente'], [2])).intoTable('A'));
-    multiSel.push(new Select('*').from('ente').multiCompare(new MultiCompare(['idente'], [1])).intoTable('B'));
-    multiSel.push(new Select('*').from('tipotelefono'));
+    multiSel.push(new Select('*').from('customer')
+      .multiCompare(new MultiCompare(['cat20'], [2])).intoTable('A'));
+    multiSel.push(new Select('*').from('seller').multiCompare(new MultiCompare(['idseller'], [6])).intoTable('B'));
+    multiSel.push(new Select('*').from('customerkind'));
     var mSel = DAC.multiSelect({selectList: multiSel, packetSize: 5, raw:true});
     mSel.progress(function (r) {
       if (!tables[r.tableName]) {
@@ -662,11 +654,11 @@ describe('dataAccess ', function () {
       expect(tables.A.length).toBeGreaterThan(5);
       expect(tables.B).toBeDefined();
       expect(tables.B.length).toBe(1);
-      expect(tables.tipotelefono).toBeDefined();
+      expect(tables.customerkind).toBeDefined();
       expect(tableCount).toBe(3);
-      expect(tables.A[0].idente).toBeDefined();
-      expect(tables.B[0].idente).toBeDefined();
-      expect(tables.tipotelefono[0].idtipotelefono).toBeDefined();
+      expect(tables.A[0].idcustomer).toBeDefined();
+      expect(tables.B[0].idseller).toBeDefined();
+      expect(tables.customerkind[0].idcustomerkind).toBeDefined();
       done();
     });
     mSel.fail(function (err) {
@@ -674,4 +666,37 @@ describe('dataAccess ', function () {
       done();
     });
   });
+});
+
+
+describe('setup dataBase', function () {
+  var sqlConn;
+  beforeEach(function (done) {
+    sqlConn = getConnection('good');
+    sqlConn.open().
+        done(function () {
+          done();
+        });
+  },10000);
+
+  afterEach(function () {
+    if (sqlConn) {
+      sqlConn.destroy();
+    }
+    sqlConn = null;
+  });
+
+
+  it ('should run the destroy script', function(done){
+    sqlConn.run(fs.readFileSync('test/destroy.sql').toString())
+        .done(function () {
+          expect(true).toBeTruthy();
+          done();
+        })
+        .fail(function(res){
+          expect(res).toBeUndefined();
+          done();
+        });
+  },30000);
+
 });

@@ -1,30 +1,22 @@
-// Generated on 2014-03-27 using generator-angular-fullstack 1.2.7
 'use strict';
 
-// # Globbing
-// for performance reasons we're only matching one level down:
-// 'test/spec/{,*/}*.js'
-// use this if you want to recursively match all subfolders:
-// 'test/spec/**/*.js'
 /*globals initConfig, appPath */
 /*jshint camelcase: false */
-
 
 module.exports = function (grunt) {
 
   // Load grunt tasks automatically
   require('load-grunt-tasks')(grunt);
-
   // Time how long tasks take. Can help when optimizing build times
   require('time-grunt')(grunt);
 
-  // Define the configuration for all the tasks
   grunt.initConfig(
       {
         pkg: grunt.file.readJSON('package.json'),
 
         yuidoc: {
           compile: {
+            linkNatives: "true",
             name: '<%= pkg.name %>',
             description: '<%= pkg.description %>',
             version: '<%= pkg.version %>',
@@ -53,12 +45,10 @@ module.exports = function (grunt) {
             matchall: false,
             specFolders: ['./test/spec/'],
             projectRoot: '',
-            //growl:true,
-            //specNameMatcher: 'spec',
             forceExit: false,
 
             jUnit: {
-              report: true,
+              report: false,
               savePath: "./build/reports/jasmine/",
               useDotNotation: true,
               consolidate: true
@@ -66,8 +56,7 @@ module.exports = function (grunt) {
           },
           single: {
             options: {
-              specFolders: ['./test/spec/'], //'./test/server/dataAccess'
-              //specFolders: ['./test/server/dataAccess/'], //'./test/server/dataAccess'
+              specFolders: ['./test/spec/'],
               autotest: false
             }
           },

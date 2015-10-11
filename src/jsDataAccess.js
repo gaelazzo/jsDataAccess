@@ -673,17 +673,19 @@ DataAccess.prototype.getPostCommand = function (r, optimisticLocking, environmen
 };
 
 
+
 /**
  * call SP with a list of simple values as parameters. The SP returns a collection of tables.
  * @method callSP
- * @param {string} spname
- * @param {Array} paramList
+ * @param {string} spName
+ * @param {object[]} paramList an array of all sp parameters, in the order the sp expects
  * @param [raw] if true data will be returned as array of simple values, without calling objectify on it
  * @returns {Array} (a sequence of arrays)
+ * @example  DA.callSP('reset_customer',[1])
  */
-DataAccess.prototype.callSP = function (spname, paramList, raw) {
-    return this.callSPWithNamedParams({
-        spName: spname,
+DataAccess.prototype.callSP = function (spName, paramList, raw) {
+    return this.myConn.callSPWithNamedParams({
+        spName: spName,
         paramList: _.map(paramList, function (p) {
             return {value: p};
         }),
@@ -693,20 +695,25 @@ DataAccess.prototype.callSP = function (spname, paramList, raw) {
 
 
 /**
- * call SP with a list of parameters each of which is an object having:
+ * call SP with a list of parameters each of which is an object of type sqlParam having:
  *  value : the value to be passed to the parameter, if it is not an output parameter
- *  (optional) out: true if it is an output parameter
- *  (optional) sqltype : a type name compatible with the used db, necessary if is an output parameter
- *  (optional) name necessary if it is an output parameter
+ *  {bool} [out=false]: true if it is an output parameter
+ *  {string} [sqltype] : a type name compatible with the underlying db, necessary if is an output parameter
+ *  {string} [name] necessary if it is an output parameter
+ *  If any output parameter is given, the corresponding outValue will be filled after the SP has runned
  *  After returning all tables given by the stored procedure, this method eventually returns
  *   an object with a property for each output parameter
- * @param {string} spname
- * @param {Array} paramList
- * @param [raw] when true data will be returned as array(s) of simple values, without calling objectify on it
+ * @param {string} spName
+ * @param {sqlParam[]} paramList
+ * @param [raw=false] when true data will be returned as array(s) of simple values, without calling objectify on it
  * @returns {Array} (a sequence of arrays)
+ * @example var arr = [{name:'idcustomer', value:1}, {name:maxValue, sqlType:int, value:null, out:true}];
+ *  DA.callSPWithNamedParams('getMaxOrder',arr);
+ *  At the end arr will be modified and a outValue added:
+ *      [{name:'idcustomer', value:1}, {name:maxValue, sqlType:int, value:null, out:true, outValue:12}]
  */
-DataAccess.prototype.callSPWithNamedParams = function (spname, paramList, raw) {
-    return this.myConn.callSPWithNamedParams(spname, paramList, raw);
+DataAccess.prototype.callSPWithNamedParams = function (spName, paramList, raw) {
+    return this.myConn.callSPWithNamedParams({spName:spName, paramList:paramList, raw:raw});
 };
 
 

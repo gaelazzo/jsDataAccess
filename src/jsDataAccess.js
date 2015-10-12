@@ -119,18 +119,21 @@ function DataAccess(options) {
 
     function getSecurity(conn) {
         if (!options.securityProv) {
-            process.nextTick(function () {
-                if (options.doneCallBack) {
+            if (options.doneCallBack) {
+                process.nextTick(function () {
+
                     options.doneCallBack(that);
-                }
-            })
+                });
+            };
         }
         else {
             options.securityProv(that, conn.formatter)
                 .done(function (security) {
                     that.security = security;
                     if (options.doneCallBack) {
-                        options.doneCallBack(that);
+                        process.nextTick(function () {
+                            options.doneCallBack(that);
+                        });
                     }
                     that.close();
                 })

@@ -120,10 +120,8 @@ function DataAccess(options) {
     function getSecurity(conn) {
         if (!options.securityProv) {
             if (options.doneCallBack) {
-                process.nextTick(function () {
-
-                    options.doneCallBack(that);
-                });
+                that.constructor = DataAccess;
+                options.doneCallBack(that);
             };
         }
         else {
@@ -131,9 +129,8 @@ function DataAccess(options) {
                 .done(function (security) {
                     that.security = security;
                     if (options.doneCallBack) {
-                        process.nextTick(function () {
-                            options.doneCallBack(that);
-                        });
+                        that.constructor = DataAccess;
+                        options.doneCallBack(that);
                     }
                     that.close();
                 })

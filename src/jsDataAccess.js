@@ -1155,7 +1155,7 @@ function objectify(colNames, rows) {
 
 
 module.exports = {
-    'DataAccess': DataAccess,
+    DataAccess: DataAccess,
     objectify: objectify,
     isolationLevels: isolationLevels
 };

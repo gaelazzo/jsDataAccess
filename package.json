@@ -21,7 +21,7 @@
     "grunt-contrib-yuidoc": "^0.7.0",
     "jasmine-core": "^2.2.0",
     "jasmine-node": "2.0.0-beta4",
-    "grunt-jasmine-node-new": "^0.3.2",
+    "grunt-jasmine-node-new": "https://github.com/gaelazzo/grunt-jasmine-node",
     "jasmine-collection-matchers":"*",
     "load-grunt-tasks": "^3.1.0",
     "time-grunt": "^1.0.0"

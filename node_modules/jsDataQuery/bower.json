@@ -1,0 +1,42 @@
+{
+  "name": "jsDataQuery",
+  "version": "1.0.0",
+  "homepage": "https://github.com/gaelazzo/jsDataQuery",
+  "repository": {
+    "type": "git",
+    "url":"git://github.com/gaelazzo/jsDataQuery.git"
+  },
+  "authors": [
+    "Gaetano Lazzo <gaetano.lazzo@gmail.com>"
+  ],
+  "description": "Query expressions translatable into Sql conditions",
+  "main": ["src/jsDataQuery.js"],
+  "files": [
+    "src"
+  ],
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
+  "keywords": [
+    "query",
+    "expression",
+    "javascript",
+    "sql",
+    "compiler"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "node_modules",
+    "bower_components",
+    "test",
+    "doc"
+  ],
+  "dependencies": {
+    "lodash": "~3.9.3"
+  },
+  "devdependencies": {
+    "jasmine": "~2.2.1"
+  }
+}

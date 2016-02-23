@@ -27,7 +27,7 @@ var  jsDataSet = require('jsDataSet'),
 var $dq = require('jsDataQuery');
 
 /**
- * @property {dataRowState} rowState
+ *
  * @type dataRowState
  */
 var    rowState = jsDataSet.dataRowState;
@@ -36,7 +36,8 @@ var    rowState = jsDataSet.dataRowState;
 /**
  * All isolation level possible, may not be present in some db. In that case, the driver for that db will default into
  *  some other similar available level depending on the DBMS capabilities.
- * @class IsolationLevels
+ * @enum IsolationLevels
+ * @static
  * @property isolationLevels
  * @type {object} readUncommitted|readCommitted|repeatableRead|snapshot|serializable
  */
@@ -48,11 +49,12 @@ var isolationLevels = {
     serializable: 'SERIALIZABLE'
 };
 
+
+
 /**
  * A DataAccess is a rich connection to a database and provides many non-blocking query functions to manage it.
  * Normally a connection is leaved open since it is destroyed. Setting persisting to false changes this
  *  default behaviour
- * creates a DataAccess
  *@class DataAccess
  */
 
@@ -73,6 +75,7 @@ function DataAccess(options) {
 
     /**
      * @property tempSqlConn
+     * @private
      * @type {Connection}
      */
     var tempSqlConn = options.sqlConn;
@@ -182,7 +185,7 @@ DataAccess.prototype = {
 
     /**
      * Last error during db activity
-     * @public
+     * @private
      * @property {string} myLastError
      */
     myLastError: null,
@@ -230,12 +233,13 @@ DataAccess.prototype = {
 
     /**
      * nesting opening level
+     * @private
      * @property {int} nesting
      */
     nesting: 0, //open / close nesting level: every open increments nesting by one, while close decrements it
 
     /**
-     * @public
+     * @private
      * @property  {DataAccess} that
      */
     that: null,

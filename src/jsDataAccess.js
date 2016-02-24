@@ -1,5 +1,4 @@
 'use strict';
-/*gaaaalobals promise,sqlFun,Environment,rollBack,reject,Deferred,promise,fail,resolve done progress notify securityProvider */
 /*jslint nomen: true*/
 /*jslint bitwise: true */
 
@@ -15,7 +14,7 @@ var  jsDataSet = require('jsDataSet'),
  *
  * @type {Deferred}
  */
-    var Deferred = require("JQDeferred");
+    var Deferred = require("jsDeferred");
     var _ = require('lodash');
     var multiSelect = require('jsMultiSelect');
     var async = require('async');

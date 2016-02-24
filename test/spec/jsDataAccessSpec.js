@@ -1,5 +1,4 @@
-/*globals describe,it,expect,jasmine,afterEach,beforeEach,DataQuery */
-;
+
 'use strict';
 
 
@@ -20,7 +19,7 @@ var fs = require('fs');
 
 var $dq = require('jsDataQuery');
 var DataAccess = DA;
-var Deferred = require("JQDeferred");
+var Deferred = require("jsDeferred");
 
 /**
  * *****************************************************************************************

@@ -8,9 +8,9 @@
   },
   "dependencies": {
     "lodash": "~3.1.0",
-    "JQDeferred": "^2.1.0",
     "async": "~1.4.0",
     "jsDataSet": "git://github.com/gaelazzo/jsDataSet.git",
+    "jsDeferred": "git://github.com/gaelazzo/jsDeferred.git",
     "jsDataQuery": "git://github.com/gaelazzo/jsDataQuery.git",
     "jsMultiSelect":"git://github.com/gaelazzo/jsMultiSelect.git"
   },

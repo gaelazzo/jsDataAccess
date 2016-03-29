@@ -3,3 +3,5 @@
 /.vs
 /node_modules
 /doc
+.ntvs_analysis.dat
+jsDataAccess.sln

@@ -941,8 +941,8 @@ DataAccess.prototype.multiSelect = function (options) {
         function (err, resultList) {
             // resultList is an array of {alias, sql} couples
             //obtains cmd as a concatenation of all sql fields in result list
-            var cmd = that.sqlConn.appendCommands(_.pluck(resultList, 'sql'));
-            doMultiSelect(that.sqlConn, options.packetSize, cmd, _.pluck(resultList, 'alias'), opt.raw)
+            var cmd = that.sqlConn.appendCommands(_.map(resultList, 'sql'));
+            doMultiSelect(that.sqlConn, options.packetSize, cmd, _.map(resultList, 'alias'), opt.raw)
                 .done(function (res) {
                     def.resolve(res);
                 })

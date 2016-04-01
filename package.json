@@ -7,7 +7,7 @@
     "test": "grunt jasmine_node:all"
   },
   "dependencies": {
-    "lodash": "~3.1.0",
+    "lodash": "4.6.1",
     "async": "~1.4.0",
     "jsDataSet": "git://github.com/gaelazzo/jsDataSet.git",
     "jsDeferred": "git://github.com/gaelazzo/jsDeferred.git",
@@ -15,14 +15,14 @@
     "jsMultiSelect":"git://github.com/gaelazzo/jsMultiSelect.git"
   },
   "devDependencies": {
-    "jsSqlServerDriver":"git://github.com/gaelazzo/jsSqlServerDriver.git",
-    "grunt": "~0.4.0",
-    "grunt-contrib-watch": "^0.6.1",
-    "grunt-contrib-yuidoc": "^0.7.0",
-    "jasmine-core": "^2.2.0",
+    "grunt": "~0.4.5",
+    "grunt-contrib-watch": "1.0.0",
+    "grunt-contrib-yuidoc": "1.0.0",
+    "jasmine-core": "2.2.0",
     "jasmine-node": "2.0.0-beta4",
     "grunt-jasmine-node-new": "https://github.com/gaelazzo/grunt-jasmine-node",
     "jasmine-collection-matchers":"*",
+    "jsSqlServerDriver":"git://github.com/gaelazzo/jsSqlServerDriver.git",
     "load-grunt-tasks": "^3.1.0",
     "time-grunt": "^1.0.0"
 

@@ -33,6 +33,7 @@ var Deferred = require("jsDeferred");
  *  }
  */
 //PUT THE  FILENAME OF YOUR FILE HERE:
+var path = require("path");
 
 var configName = path.join('test', 'db.json');
 var dbConfig;

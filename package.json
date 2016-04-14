@@ -4,13 +4,13 @@
   "description": "Facilities to access a database without knowing exactly the database type or implementation details",
   "main": "src/jsDataAccess.js",
   "scripts": {
-    "test": "grunt jasmine_node:all"
+    "test": "grunt test"
   },
   "dependencies": {
     "lodash": "4.6.1",
     "async": "~1.4.0",
     "jsDataSet": "https://github.com/gaelazzo/jsDataSet",
-    "jsDeferred": "https://github.com/gaelazzo/jsDeferred",
+    "JQDeferred": "^2.1.0",
     "jsDataQuery": "https://github.com/gaelazzo/jsDataQuery",
     "jsMultiSelect":"https://github.com/gaelazzo/jsMultiSelect"
   },
@@ -28,12 +28,12 @@
     "karma-jasmine": "^0.3.5",
     "karma-junit-reporter": "^0.2.2",
     "karma-sauce-launcher": "^0.2.10",
-    "load-grunt-tasks": "^3.1.0",
+    "load-grunt-tasks": "^3.4.1",
     "time-grunt": "^1.0.0"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/gaelazzo/jsMultiSelect"
+    "url": "https://github.com/gaelazzo/jsDataAccess"
   },
   "keywords": [
     "query",
@@ -45,7 +45,7 @@
   "author": "Gaetano Lazzo",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/gaelazzo/jsMultiSelect/issues"
+    "url": "https://github.com/gaelazzo/jsDataAccess/issues"
   },
-  "homepage": "https://github.com/gaelazzo/jsMultiSelect#readme"
+  "homepage": "https://github.com/gaelazzo/jsDataAccess#readme"
 }

@@ -155,7 +155,6 @@ function DataAccess(options) {
 
 
 
-    //console.log('inside dataAccess');
     if (options.persisting) {
         tempSqlConn.open()
             .done(function (conn) {
@@ -415,15 +414,15 @@ DataAccess.prototype = {
         var res = Deferred();
         ensureOpen(this, function (conn) {
             return conn.sqlConn.queryBatch(query, raw)
-                .done(function (result) {
-                    res.resolve(result);
-                })
-                .progress(function (result) {
-                    res.resolve(result);
-                })
-                .fail(function (err) {
-                    res.reject(err);
-                });
+            .progress(function (result) {
+                res.resolve(result);
+            })
+            .done(function (result) {
+                res.resolve(result);
+            })
+            .fail(function (err) {
+                res.reject(err);
+            });
         });
         return res.promise();
     },
@@ -871,30 +870,32 @@ DataAccess.prototype.queryPackets = function (opt, packetSize, raw) {
             def.notify({tableName: tableName, rows: packet});
         }
     }
-
-    ensureOpen(this, function (conn) {
-        return conn.getFilterSecured(options.filter, options.applySecurity, options.tableName, options.environment)
+    var that = this;
+    process.nextTick(function() {
+        ensureOpen(that, function (conn) {
+            return conn.getFilterSecured(options.filter, options.applySecurity, options.tableName, options.environment)
             .then(function (filterSec) {
-                    var opt = _.clone(options);
+                    var opt    = _.clone(options);
                     opt.filter = filterSec;
                     var selCmd = conn.sqlConn.getSelectCommand(opt);
                     conn.sqlConn.queryPackets(selCmd, raw, packetSize)
-                        .progress(function (r) {
-                            if (r.meta) {
-                                currTableInfo.columns = r.meta;
-                                currTableInfo.tableName = tableName;
-                            } else {
-                                notifyPacket(r.rows);
-                            }
-                        })
-                        .done(function () {
-                            def.resolve();
-                        })
-                        .fail(function (err) {
-                            def.reject(err);
-                        });
+                    .progress(function (r) {
+                        if (r.meta) {
+                            currTableInfo.columns   = r.meta;
+                            currTableInfo.tableName = tableName;
+                        } else {
+                            notifyPacket(r.rows);
+                        }
+                    })
+                    .done(function () {
+                        def.resolve();
+                    })
+                    .fail(function (err) {
+                        def.reject(err);
+                    });
                 }
             );
+        });
     });
     return def.promise();
 };

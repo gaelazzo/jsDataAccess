@@ -38,6 +38,14 @@ var configName = 'D:/gitrepo/jsDataAccess/test/db.json';
 
 var dbConfig = JSON.parse(fs.readFileSync(configName).toString());
 
+if (process.env.TRAVIS){
+    dbConfig = { "server": "127.0.0.1",
+        "dbName": "test",
+        "user": "root",
+        "pwd": ""
+    };
+}
+
 var dbInfo = {
     good: {
         server: dbConfig.server,
@@ -45,7 +53,7 @@ var dbInfo = {
         user: dbConfig.user,
         pwd: dbConfig.pwd,
         database: dbConfig.dbName,
-        sqlModule: 'jsSqlServerDriver'
+        sqlModule: 'jsMySqlDriver'
     },
     bad: {
         server: dbConfig.server,
@@ -53,7 +61,7 @@ var dbInfo = {
         user: dbConfig.user,
         pwd: dbConfig.pwd + 'AA',
         database: dbConfig.dbName,
-        sqlModule: 'jsSqlServerDriver'
+        sqlModule: 'jsMySqlDriver'
     }
 };
 
@@ -211,7 +219,7 @@ describe('dataAccess ', function () {
     });
 
     it('runSql should return a table', function (done) {
-        DAC.runSql('select top 10 * from sysobjects;select top 20 * from sysobjects;select top 30 * from sysobjects')
+        DAC.runSql('select * from seller limit 10;select * from seller limit 20;select  * from seller limit 30')
             .then(function (t) {
                 expect(t.length).toEqual(10);
                 done();
@@ -323,20 +331,21 @@ describe('dataAccess ', function () {
             });
     });
 
-    it('queryPackets should give results', function (done) {
-        var nPackets = 0,
-            nRows = 0;
-        DAC.queryPackets({
-            tableName: 'customerkind',
-            top: '50'
-        }, 6, false)
+    describe ('queryPackets', function() {
+        it('queryPackets should give results', function (done) {
+            var nPackets = 0,
+                nRows    = 0;
+            DAC.queryPackets({
+                tableName: 'customerkind',
+                top: '50'
+            }, 6, false)
             .progress(function (r) {
                 expect(r.meta).toBeUndefined();
                 expect(r.rows).toEqual(jasmine.any(Array));
                 nPackets += 1;
                 nRows += r.rows.length;
             })
-            .done(function () {
+            .done(function (res) {
                 expect(nPackets).toBe(9);
                 expect(nRows).toBe(50);
                 done();
@@ -345,15 +354,15 @@ describe('dataAccess ', function () {
                 expect(err).toBeUndefined();
                 done();
             });
-    });
+        });
 
-    it('queryPackets should give results (raw)', function (done) {
-        var nPackets = 0,
-            nRows = 0;
-        DAC.queryPackets({
-            tableName: 'customerkind',
-            top: '50'
-        }, 6, true)
+        it('queryPackets should give results (raw)', function (done) {
+            var nPackets = 0,
+                nRows    = 0;
+            DAC.queryPackets({
+                tableName: 'customerkind',
+                top: '50'
+            }, 6, true)
             .progress(function (r) {
                 expect(r.meta).toBeDefined();
                 expect(r.rows).toEqual(jasmine.any(Array));
@@ -369,15 +378,15 @@ describe('dataAccess ', function () {
                 expect(err).toBeUndefined();
                 done();
             });
-    });
+        });
 
-    it('queryPackets should give results (big packet)', function (done) {
-        var nPackets = 0,
-            nRows = 0;
-        DAC.queryPackets({
-            tableName: 'customer',
-            top: '50'
-        }, 100, false)
+        it('queryPackets should give results (big packet)', function (done) {
+            var nPackets = 0,
+                nRows    = 0;
+            DAC.queryPackets({
+                tableName: 'customer',
+                top: '50'
+            }, 100, false)
             .progress(function (r) {
                 expect(r.meta).toBeUndefined();
                 expect(r.rows).toEqual(jasmine.any(Array));
@@ -393,16 +402,16 @@ describe('dataAccess ', function () {
                 expect(err).toBeUndefined();
                 done();
             });
-    });
+        });
 
-    it('queryPackets should not give results (empty result)', function (done) {
-        var nPackets = 0,
-            nRows = 0;
-        DAC.queryPackets({
-            tableName: 'customer',
-            filter: $dq.eq('idcustomer', -12),
-            top: '50'
-        }, 100, false)
+        it('queryPackets should not give results (empty result)', function (done) {
+            var nPackets = 0,
+                nRows    = 0;
+            DAC.queryPackets({
+                tableName: 'customer',
+                filter: $dq.eq('idcustomer', -12),
+                top: '50'
+            }, 100, false)
             .progress(function (r) {
                 nPackets += 1;
                 nRows += r.rows.length;
@@ -416,16 +425,16 @@ describe('dataAccess ', function () {
                 expect(err).toBeUndefined();
                 done();
             });
-    });
+        });
 
-    it('queryPackets should not give results (empty result) (raw)', function (done) {
-        var nPackets = 0,
-            nRows = 0;
-        DAC.queryPackets({
-            tableName: 'customer',
-            filter: $dq.eq('idcustomer', -12),
-            top: '50'
-        }, 100, true)
+        it('queryPackets should not give results (empty result) (raw)', function (done) {
+            var nPackets = 0,
+                nRows    = 0;
+            DAC.queryPackets({
+                tableName: 'customer',
+                filter: $dq.eq('idcustomer', -12),
+                top: '50'
+            }, 100, true)
             .progress(function (r) {
                 nPackets += 1;
                 nRows += r.rows.length;
@@ -439,15 +448,17 @@ describe('dataAccess ', function () {
                 expect(err).toBeUndefined();
                 done();
             });
+        });
+
     });
 
     it('objectify should transform raw data into objects', function (done) {
-        DAC.runSql('select top 3 * from customer where idcustomer<2000', false)
+        DAC.runSql('select  * from customer where idcustomer<2000 limit 3;', false)
             .then(function (resObject) {
                 expect(resObject).toEqual(jasmine.any(Array));
                 expect(resObject.length).toBe(3);
 
-                DAC.runSql('select top 3 * from customer where idcustomer<2000', true)
+                DAC.runSql('select  * from customer where idcustomer<2000 limit 3', true)
                     .done(function (res) {
                         var obj = DA.objectify(res.meta, res.rows);
                         expect(res.rows.length).toBe(3);
@@ -470,9 +481,9 @@ describe('dataAccess ', function () {
 
 
     it('raw data read should be quick', function (done) {
-        DAC.runSql('select top 500 *  from customer', true)
+        DAC.runSql('select *  from customer limit 500', true)
             .then(function (resObject) {
-                DAC.runSql('select top 500 *  from customer', true)
+                DAC.runSql('select *  from customer limit 500', true)
                     .done(function (res) {
                         expect(res.rows).toEqual(resObject.rows);
                         expect(res.meta).toEqual(resObject.meta);
@@ -505,177 +516,180 @@ describe('dataAccess ', function () {
         })
     });
 
-    it('multiSelect should give multiple tables', function (done) {
-        var multiSel = [],
-            tableCount = 0;
-        multiSel.push(new Select('*').from('customer').multiCompare(new MultiCompare(['idcustomer'], [2])));
-        multiSel.push(new Select('*').from('customerkind').multiCompare(new MultiCompare(['idcustomerkind'], [3])));
-        multiSel.push(new Select('*').from('sellerkind'));
-        var mSel = DAC.multiSelect({selectList: multiSel});
-        mSel.progress(function () {
-            tableCount += 1;
+    describe ('multiSelect', function() {
+        it('multiSelect should give multiple tables', function (done) {
+            var multiSel   = [],
+                tableCount = 0;
+            multiSel.push(new Select('*').from('customer').multiCompare(new MultiCompare(['idcustomer'], [2])));
+            multiSel.push(new Select('*').from('customerkind').multiCompare(new MultiCompare(['idcustomerkind'], [3])));
+            multiSel.push(new Select('*').from('sellerkind'));
+            var mSel = DAC.multiSelect({selectList: multiSel});
+            mSel.progress(function () {
+                tableCount += 1;
+            });
+            mSel.done(function (result) {
+                expect(result).toBeUndefined();
+                expect(tableCount).toBe(3);
+                done();
+            });
+            mSel.fail(function (err) {
+                expect(err).toBeUndefined();
+                done();
+            });
         });
-        mSel.done(function (result) {
-            expect(result).toBeUndefined();
-            expect(tableCount).toBe(3);
-            done();
-        });
-        mSel.fail(function (err) {
-            expect(err).toBeUndefined();
-            done();
-        });
-    });
 
-    it('multiSelect should give tables with alias', function (done) {
-        var multiSel = [],
-            tableCount = 0,
-            tables = {};
-        multiSel.push(new Select('*').from('customer')
+        it('multiSelect should give tables with alias', function (done) {
+            var multiSel   = [],
+                tableCount = 0,
+                tables     = {};
+            multiSel.push(new Select('*').from('customer')
             .multiCompare(new MultiCompare(['cat'], [4])).intoTable('A').top('5'));
-        multiSel.push(new Select('*').from('seller').multiCompare(new MultiCompare(['idseller'], [1])).intoTable('B'));
-        multiSel.push(new Select('*').from('customerkind'));
-        var mSel = DAC.multiSelect({selectList: multiSel});
-        mSel.progress(function (r) {
-            tableCount += 1;
-            expect(r.rows).toEqual(jasmine.any(Array));
-            expect(r.meta).toBeUndefined();
-            expect(r.tableName).toEqual(jasmine.any(String));
-            tables[r.tableName] = r.rows;
+            multiSel.push(new Select('*').from('seller').multiCompare(new MultiCompare(['idseller'], [1])).intoTable('B'));
+            multiSel.push(new Select('*').from('customerkind'));
+            var mSel = DAC.multiSelect({selectList: multiSel});
+            mSel.progress(function (r) {
+                tableCount += 1;
+                expect(r.rows).toEqual(jasmine.any(Array));
+                expect(r.meta).toBeUndefined();
+                expect(r.tableName).toEqual(jasmine.any(String));
+                tables[r.tableName] = r.rows;
+            });
+            mSel.done(function (result) {
+                expect(result).toBeUndefined();
+                expect(tables.A).toBeDefined();
+                expect(tables.A.length).toBe(5);
+                expect(tables.B).toBeDefined();
+                expect(tables.B.length).toBe(1);
+                expect(tables.customerkind).toBeDefined();
+                expect(tables.A[0].idcustomer).toBeDefined();
+                expect(tables.B[0].idseller).toBeDefined();
+                expect(tables.customerkind[0].idcustomerkind).toBeDefined();
+                expect(tableCount).toBe(3);
+                done();
+            });
+            mSel.fail(function (err) {
+                expect(err).toBeUndefined();
+                done();
+            });
         });
-        mSel.done(function (result) {
-            expect(result).toBeUndefined();
-            expect(tables.A).toBeDefined();
-            expect(tables.A.length).toBe(5);
-            expect(tables.B).toBeDefined();
-            expect(tables.B.length).toBe(1);
-            expect(tables.customerkind).toBeDefined();
-            expect(tables.A[0].idcustomer).toBeDefined();
-            expect(tables.B[0].idseller).toBeDefined();
-            expect(tables.customerkind[0].idcustomerkind).toBeDefined();
-            expect(tableCount).toBe(3);
-            done();
-        });
-        mSel.fail(function (err) {
-            expect(err).toBeUndefined();
-            done();
-        });
-    });
 
-    it('multiSelect should give tables with alias (raw)', function (done) {
-        var multiSel = [],
-            tableCount = 0,
-            tables = {};
-        multiSel.push(new Select('*').from('customer')
+        it('multiSelect should give tables with alias (raw)', function (done) {
+            var multiSel   = [],
+                tableCount = 0,
+                tables     = {};
+            multiSel.push(new Select('*').from('customer')
             .multiCompare(new MultiCompare(['cat'], [2])).intoTable('A').top('5'));
-        multiSel.push(new Select('*').from('seller').multiCompare(new MultiCompare(['idseller'], [3])).intoTable('B'));
-        multiSel.push(new Select('*').from('customerkind'));
-        var mSel = DAC.multiSelect({selectList: multiSel, raw: true});
-        mSel.progress(function (r) {
-            tableCount += 1;
-            expect(r.rows).toEqual(jasmine.any(Array));
-            expect(r.meta).toEqual(jasmine.any(Array));
-            expect(r.tableName).toEqual(jasmine.any(String));
-            tables[r.tableName] = DA.objectify(r.meta, r.rows);
-
-        });
-        mSel.done(function (result) {
-            expect(result).toBeUndefined();
-            expect(tables.A).toBeDefined();
-            expect(tables.A.length).toBe(5);
-            expect(tables.B).toBeDefined();
-            expect(tables.B.length).toBe(1);
-            expect(tables.customerkind).toBeDefined();
-            expect(tableCount).toBe(3);
-            expect(tables.A[0].idcustomer).toBeDefined();
-            expect(tables.B[0].idseller).toBeDefined();
-            expect(tables.customerkind[0].idcustomerkind).toBeDefined();
-
-            done();
-        });
-        mSel.fail(function (err) {
-            expect(err).toBeUndefined();
-            done();
-        });
-    });
-
-    it('multiSelect should give tables with alias - packeting', function (done) {
-        var multiSel = [],
-            tableCount = 0,
-            tables = {};
-        multiSel.push(new Select('*').from('customer')
-            .multiCompare(new MultiCompare(['cat20'], [2])).intoTable('A'));
-        multiSel.push(new Select('*').from('seller').multiCompare(new MultiCompare(['idseller'], [6])).intoTable('B'));
-        multiSel.push(new Select('*').from('customerkind'));
-        var mSel = DAC.multiSelect({selectList: multiSel, packetSize: 5});
-        mSel.progress(function (r) {
-            if (!tables[r.tableName]) {
+            multiSel.push(new Select('*').from('seller').multiCompare(new MultiCompare(['idseller'], [3])).intoTable('B'));
+            multiSel.push(new Select('*').from('customerkind'));
+            var mSel = DAC.multiSelect({selectList: multiSel, raw: true});
+            mSel.progress(function (r) {
                 tableCount += 1;
-                tables[r.tableName] = [];
-            }
-            expect(r.rows.length).toBeLessThan(6);
-            expect(r.rows).toEqual(jasmine.any(Array));
-            expect(r.meta).toBeUndefined();
-            expect(r.tableName).toEqual(jasmine.any(String));
-            tables[r.tableName] = tables[r.tableName].concat(r.rows);
-        });
-        mSel.done(function (result) {
-            expect(result).toBeUndefined();
-            expect(tables.A).toBeDefined();
-            expect(tables.A.length).toBeGreaterThan(5);
-            expect(tables.B).toBeDefined();
-            expect(tables.B.length).toBe(1);
-            expect(tables.customerkind).toBeDefined();
-            expect(tableCount).toBe(3);
-            expect(tables.A[0].idcustomer).toBeDefined();
-            expect(tables.B[0].idseller).toBeDefined();
-            expect(tables.customerkind[0].idcustomerkind).toBeDefined();
-            done();
-        });
-        mSel.fail(function (err) {
-            expect(err).toBeUndefined();
-            done();
-        });
-    });
+                expect(r.rows).toEqual(jasmine.any(Array));
+                expect(r.meta).toEqual(jasmine.any(Array));
+                expect(r.tableName).toEqual(jasmine.any(String));
+                tables[r.tableName] = DA.objectify(r.meta, r.rows);
 
+            });
+            mSel.done(function (result) {
+                expect(result).toBeUndefined();
+                expect(tables.A).toBeDefined();
+                expect(tables.A.length).toBe(5);
+                expect(tables.B).toBeDefined();
+                expect(tables.B.length).toBe(1);
+                expect(tables.customerkind).toBeDefined();
+                expect(tableCount).toBe(3);
+                expect(tables.A[0].idcustomer).toBeDefined();
+                expect(tables.B[0].idseller).toBeDefined();
+                expect(tables.customerkind[0].idcustomerkind).toBeDefined();
 
-    it('multiSelect should give tables with alias - packeting raw', function (done) {
-        var multiSel = [],
-            tableCount = 0,
-            tables = {};
-        multiSel.push(new Select('*').from('customer')
+                done();
+            });
+            mSel.fail(function (err) {
+                expect(err).toBeUndefined();
+                done();
+            });
+        });
+
+        it('multiSelect should give tables with alias - packeting', function (done) {
+            var multiSel   = [],
+                tableCount = 0,
+                tables     = {};
+            multiSel.push(new Select('*').from('customer')
             .multiCompare(new MultiCompare(['cat20'], [2])).intoTable('A'));
-        multiSel.push(new Select('*').from('seller').multiCompare(new MultiCompare(['idseller'], [6])).intoTable('B'));
-        multiSel.push(new Select('*').from('customerkind'));
-        var mSel = DAC.multiSelect({selectList: multiSel, packetSize: 5, raw: true});
-        mSel.progress(function (r) {
-            if (!tables[r.tableName]) {
-                tableCount += 1;
-                tables[r.tableName] = [];
-            }
-            expect(r.rows).toEqual(jasmine.any(Array));
-            expect(r.meta).toEqual(jasmine.any(Array));
-            expect(r.rows.length).toBeLessThan(6);
-            expect(r.tableName).toEqual(jasmine.any(String));
-            tables[r.tableName] = tables[r.tableName].concat(DA.objectify(r.meta, r.rows));
+            multiSel.push(new Select('*').from('seller').multiCompare(new MultiCompare(['idseller'], [6])).intoTable('B'));
+            multiSel.push(new Select('*').from('customerkind'));
+            var mSel = DAC.multiSelect({selectList: multiSel, packetSize: 5});
+            mSel.progress(function (r) {
+                if (!tables[r.tableName]) {
+                    tableCount += 1;
+                    tables[r.tableName] = [];
+                }
+                expect(r.rows.length).toBeLessThan(6);
+                expect(r.rows).toEqual(jasmine.any(Array));
+                expect(r.meta).toBeUndefined();
+                expect(r.tableName).toEqual(jasmine.any(String));
+                tables[r.tableName] = tables[r.tableName].concat(r.rows);
+            });
+            mSel.done(function (result) {
+                expect(result).toBeUndefined();
+                expect(tables.A).toBeDefined();
+                expect(tables.A.length).toBeGreaterThan(5);
+                expect(tables.B).toBeDefined();
+                expect(tables.B.length).toBe(1);
+                expect(tables.customerkind).toBeDefined();
+                expect(tableCount).toBe(3);
+                expect(tables.A[0].idcustomer).toBeDefined();
+                expect(tables.B[0].idseller).toBeDefined();
+                expect(tables.customerkind[0].idcustomerkind).toBeDefined();
+                done();
+            });
+            mSel.fail(function (err) {
+                expect(err).toBeUndefined();
+                done();
+            });
         });
-        mSel.done(function (result) {
-            expect(result).toBeUndefined();
-            expect(tables.A).toBeDefined();
-            expect(tables.A.length).toBeGreaterThan(5);
-            expect(tables.B).toBeDefined();
-            expect(tables.B.length).toBe(1);
-            expect(tables.customerkind).toBeDefined();
-            expect(tableCount).toBe(3);
-            expect(tables.A[0].idcustomer).toBeDefined();
-            expect(tables.B[0].idseller).toBeDefined();
-            expect(tables.customerkind[0].idcustomerkind).toBeDefined();
-            done();
-        });
-        mSel.fail(function (err) {
-            expect(err).toBeUndefined();
-            done();
+
+
+        it('multiSelect should give tables with alias - packeting raw', function (done) {
+            var multiSel   = [],
+                tableCount = 0,
+                tables     = {};
+            multiSel.push(new Select('*').from('customer')
+            .multiCompare(new MultiCompare(['cat20'], [2])).intoTable('A'));
+            multiSel.push(new Select('*').from('seller').multiCompare(new MultiCompare(['idseller'], [6])).intoTable('B'));
+            multiSel.push(new Select('*').from('customerkind'));
+            var mSel = DAC.multiSelect({selectList: multiSel, packetSize: 5, raw: true});
+            mSel.progress(function (r) {
+                if (!tables[r.tableName]) {
+                    tableCount += 1;
+                    tables[r.tableName] = [];
+                }
+                expect(r.rows).toEqual(jasmine.any(Array));
+                expect(r.meta).toEqual(jasmine.any(Array));
+                expect(r.rows.length).toBeLessThan(6);
+                expect(r.tableName).toEqual(jasmine.any(String));
+                tables[r.tableName] = tables[r.tableName].concat(DA.objectify(r.meta, r.rows));
+            });
+            mSel.done(function (result) {
+                expect(result).toBeUndefined();
+                expect(tables.A).toBeDefined();
+                expect(tables.A.length).toBeGreaterThan(5);
+                expect(tables.B).toBeDefined();
+                expect(tables.B.length).toBe(1);
+                expect(tables.customerkind).toBeDefined();
+                expect(tableCount).toBe(3);
+                expect(tables.A[0].idcustomer).toBeDefined();
+                expect(tables.B[0].idseller).toBeDefined();
+                expect(tables.customerkind[0].idcustomerkind).toBeDefined();
+                done();
+            });
+            mSel.fail(function (err) {
+                expect(err).toBeUndefined();
+                done();
+            });
         });
     });
+
 });
 
 

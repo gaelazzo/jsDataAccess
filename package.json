@@ -9,10 +9,10 @@
   "dependencies": {
     "lodash": "4.6.1",
     "async": "~1.4.0",
-    "jsDataSet": "git://github.com/gaelazzo/jsDataSet.git",
-    "jsDeferred": "git://github.com/gaelazzo/jsDeferred.git",
-    "jsDataQuery": "git://github.com/gaelazzo/jsDataQuery.git",
-    "jsMultiSelect":"git://github.com/gaelazzo/jsMultiSelect.git"
+    "jsDataSet": "https://github.com/gaelazzo/jsDataSet",
+    "jsDeferred": "https://github.com/gaelazzo/jsDeferred",
+    "jsDataQuery": "https://github.com/gaelazzo/jsDataQuery",
+    "jsMultiSelect":"https://github.com/gaelazzo/jsMultiSelect"
   },
   "devDependencies": {
     "grunt": "~0.4.5",
@@ -20,12 +20,16 @@
     "grunt-contrib-yuidoc": "1.0.0",
     "jasmine-core": "2.2.0",
     "jasmine-node": "2.0.0-beta4",
-    "grunt-jasmine-node-new": "https://github.com/gaelazzo/grunt-jasmine-node",
+    "grunt-jasmine-node": "https://github.com/gaelazzo/grunt-jasmine-node",
     "jasmine-collection-matchers":"*",
-    "jsSqlServerDriver":"git://github.com/gaelazzo/jsSqlServerDriver.git",
+    "jsMySqlDriver":"https://github.com/gaelazzo/jsMySqlDriver",
+    "grunt-karma": "^0.10.1",
+    "karma": "^0.12.31",
+    "karma-jasmine": "^0.3.5",
+    "karma-junit-reporter": "^0.2.2",
+    "karma-sauce-launcher": "^0.2.10",
     "load-grunt-tasks": "^3.1.0",
     "time-grunt": "^1.0.0"
-
   },
   "repository": {
     "type": "git",

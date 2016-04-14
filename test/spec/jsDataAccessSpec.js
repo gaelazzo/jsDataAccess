@@ -33,10 +33,21 @@ var Deferred = require("jsDeferred");
  *  }
  */
 //PUT THE  FILENAME OF YOUR FILE HERE:
-var configName = 'D:/gitrepo/jsDataAccess/test/db.json';
+
+var configName = path.join('test', 'db.json');
+var dbConfig;
+if (process.env.TRAVIS){
+    dbConfig = { "server": "127.0.0.1",
+        "dbName": "test",
+        "user": "root",
+        "pwd": ""
+    };
+}
+else {
+    dbConfig = JSON.parse(fs.readFileSync(configName).toString());
+}
 
 
-var dbConfig = JSON.parse(fs.readFileSync(configName).toString());
 
 if (process.env.TRAVIS){
     dbConfig = { "server": "127.0.0.1",

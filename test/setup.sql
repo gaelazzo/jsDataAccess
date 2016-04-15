@@ -13,7 +13,7 @@ CREATE TABLE customer(
 	curr decimal(19,2) NULL,
 	cat int null,
 	cat20 int null,
-    KEY PK_customer (idcustomer)
+    PRIMARY  KEY PK_customer (idcustomer)
 );
 
 GO
@@ -61,7 +61,7 @@ CREATE TABLE seller(
 	random int NULL,
 	curr decimal(19,2) NULL,
 	cf varchar(200),
-	KEY PK_seller (idseller)
+	PRIMARY  KEY PK_seller (idseller)
 );
 
 GO
@@ -104,7 +104,7 @@ CREATE TABLE sellerkind(
 	idsellerkind int NOT NULL,
 	name varchar(100) NULL,
 	rnd int NULL,
-    KEY PK_sellerkind (idsellerkind)
+    PRIMARY  KEY PK_sellerkind (idsellerkind)
 );
 
 

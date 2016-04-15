@@ -1110,7 +1110,7 @@ function getAProperty(obj) {
  * @param {object} r
  */
 function mergeRowIntoTable(table, r) {
-    var rFound = _.where(table.rows, _.pick(r, table.key()));
+    var rFound = _.filter(table.rows, _.pick(r, table.key()));
     if (rFound.length > 0) {
         rFound[0].getRow().detach();
     }

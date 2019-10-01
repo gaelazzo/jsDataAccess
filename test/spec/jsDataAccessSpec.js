@@ -80,10 +80,15 @@ var dbInfo = {
 
 function getConnection(dbCode) {
     var options = dbInfo[dbCode];
+    //console.log("getConnection("+dbCode+")");
     if (options) {
         options.dbCode = dbCode;
         var sqlMod = require(options.sqlModule);
-        return new sqlMod.Connection(options);
+        //console.log("invoking  new sqlMod.Connection");
+        var conn= new sqlMod.Connection(options);  //è di tipo Connection quindi non ha queryBatch
+        //console.log("invoked  new sqlMod.Connection");
+        //console.log(conn.edgeConnection.queryBatch);       //Function
+        return conn;
     }
     return undefined;
 }
@@ -96,14 +101,20 @@ function getConnection(dbCode) {
  */
 function getDataAccess(dbCode) {
     var q = Deferred(),
-        sqlConn = getConnection(dbCode);
+        sqlConn = getConnection(dbCode);    //Restituisce una Connection
+    //console.log("getConnection result");
+    //console.log(sqlConn.edgeConnection.queryBatch);       //Function
 
     new DA.DataAccess({
         sqlConn: sqlConn,
         errCallBack: function (err) {
+            //console.log("errCallBack called")
             q.reject(err);
         },
         doneCallBack: function (d) {
+            //console.log("doneCallBack called");
+            //qui d.sqlConn.prototype dovrebbe essere valorizzato ma non lo è
+            //console.log(d.sqlConn.edgeConnection.queryBatch); //Function
             q.resolve(d);
         }
     });
@@ -142,22 +153,26 @@ describe('setup dataBase', function () {
 
 });
 
-describe('dataAccess ', function () {
+describe('dataAccess', function () {
     var DAC;
     beforeEach(function (done) {
         DAC = undefined;
         getDataAccess('good')
             .done(function (conn) {
+                //console.log('done getting DataAccess>>>>>>>>>>>>!!!!!>>>>>>>>>>>>>>>');
                 DAC = conn;
+                //console.log(DAC.sqlConn.edgeConnection.queryBatch); //ha come proprietà Connection e altre ma non ha prototype
+                //console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
                 done();
             })
-            .fail(function () {
-                done();
+            .fail(function (err) {
+                //console.log('failed getting DataAccess');
+                done.fail(err);
             });
     });
 
     afterEach(function () {
-        DAC.destroy();
+        if (DAC) DAC.destroy();
     });
 
 
@@ -166,7 +181,6 @@ describe('dataAccess ', function () {
         expect(DAC instanceof DA.DataAccess).toBeTruthy();
         expect(DAC.constructor).toBe(DA.DataAccess);
         done();
-
     });
 
     it('readValue should return a single value', function (done) {

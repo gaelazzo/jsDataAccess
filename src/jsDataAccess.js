@@ -390,7 +390,7 @@ DataAccess.prototype = {
     myReadLastTable: function (query, raw) {
         var res = Deferred();
         ensureOpen(this, function (conn) {
-            return conn.sqlConn.edgeConnection.queryBatch(query, raw)
+            return conn.sqlConn.queryBatch(query, raw)
                 .done(function (result) {
                     res.resolve(result);
                 })
@@ -412,22 +412,16 @@ DataAccess.prototype = {
      */
     myReadFirstTable: function (query, raw) {
         var res = Deferred();
-        //console.log('to ensure open');
         ensureOpen(this, function (conn) {
-            //console.log('ensured open');
             //Qui conn.sqlConn.queryBatch è undefined
-            return conn.sqlConn.edgeConnection.queryBatch(query, raw)
+            return conn.sqlConn.queryBatch(query, raw)
             .progress(function (result) {
-                //console.log('queryBatch update');
                 res.resolve(result);
             })
             .done(function (result) {
-                //console.log('queryBatch done');
                 res.resolve(result);
             })
             .fail(function (err) {
-                //console.log('did not ensure open');
-                //console.log(err);
                 res.reject(err);
             });
         });
@@ -485,7 +479,7 @@ DataAccess.prototype = {
             .fail(function (err) {
                 res.reject(err);
             });
-        return res.promise();
+        return res;
     },
 
 
@@ -569,7 +563,7 @@ DataAccess.prototype = {
                 });
         }
         if (row.state === rowState.added) {
-            return this.sqlConn.getInsertCommand(row.table.name, _.keys(r), _.values(r));
+            return this.sqlConn.edgeConnection.getInsertCommand(row.table.name, _.keys(r), _.values(r));
         }
         if (row.state === rowState.deleted) {
             return this.sqlConn.getDeleteCommand(
@@ -696,7 +690,7 @@ DataAccess.prototype = {
                 .then(function (filterSec) {
                         options.filter = filterSec;
                         var selCmd = conn.sqlConn.getSelectCommand(options);
-                        return conn.sqlConn.edgeConnection.queryLines(selCmd, raw);
+                        return conn.sqlConn.queryLines(selCmd, raw);
                     }
                 );
         });
@@ -806,7 +800,7 @@ DataAccess.prototype = {
     doGenericUpdate: function(cmd) {
         var res = Deferred();
         ensureOpen(this, function (conn) {
-            return conn.sqlConn.edgeConnection.updateBatch(cmd)
+            return conn.sqlConn.updateBatch(cmd)
                 .done(function (result) {
                     res.resolve(result);
                 })
@@ -836,7 +830,6 @@ DataAccess.prototype = {
     myReadValue : function(options) {
         var opt = _.defaults({}, options, {columns: [this.getFormatter().toSql(options.expr, options.environment)]}),
             cmd = this.sqlConn.getSelectCommand(opt);
-        //console.log('inside myReadValue');
         return this.myReadFirstValue( cmd);
     }
 
@@ -886,7 +879,7 @@ DataAccess.prototype.queryPackets = function (opt, packetSize, raw) {
                     var opt    = _.clone(options);
                     opt.filter = filterSec;
                     var selCmd = conn.sqlConn.getSelectCommand(opt);
-                    conn.sqlConn.edgeConnection.queryPackets(selCmd, raw, packetSize)
+                    conn.sqlConn.queryPackets(selCmd, raw, packetSize)
                     .progress(function (r) {
                         if (r.meta) {
                             currTableInfo.columns   = r.meta;
@@ -1190,7 +1183,7 @@ function doMultiSelect(conn, packetSize, cmd, aliasList, raw) {
             def.notify(packet);
         }
     }
-    conn.edgeConnection.queryPackets(cmd, raw, packetSize)
+    conn.queryPackets(cmd, raw, packetSize)
         .progress(function (r) {
             if (r.meta) {
                 currTableInfo.meta = r.meta;

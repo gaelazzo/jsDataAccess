@@ -479,7 +479,7 @@ DataAccess.prototype = {
             .fail(function (err) {
                 res.reject(err);
             });
-        return res;
+        return res.promise();
     },
 
 

@@ -418,6 +418,9 @@ DataAccess.prototype = {
         var res = Deferred();
         ensureOpen(this, function (conn) {
             console.log("myReadFirstTable - ensured open");
+            if (!conn.sqlConn.queryBatch){
+                console.log(conn.sqlConn);
+            }
             //Qui conn.sqlConn.queryBatch è undefined
             return conn.sqlConn.queryBatch(query, raw)
             .progress(function (result) {

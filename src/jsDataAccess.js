@@ -1187,7 +1187,7 @@ function doMultiSelect(conn, packetSize, cmd, aliasList, raw) {
             def.notify(packet);
         }
     }
-    conn.edgeConnection.queryPackets(cmd, raw, packetSize)
+    conn.queryPackets(cmd, raw, packetSize)
         .progress(function (r) {
             if (r.meta) {
                 currTableInfo.meta = r.meta;

@@ -49,15 +49,6 @@ else {
 }
 
 
-
-if (process.env.TRAVIS){
-    dbConfig = { "server": "127.0.0.1",
-        "dbName": "test",
-        "user": "root",
-        "pwd": ""
-    };
-}
-
 var dbInfo = {
     good: {
         server: dbConfig.server,

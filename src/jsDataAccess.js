@@ -563,7 +563,7 @@ DataAccess.prototype = {
                 });
         }
         if (row.state === rowState.added) {
-            return this.sqlConn.edgeConnection.getInsertCommand(row.table.name, _.keys(r), _.values(r));
+            return this.sqlConn.getInsertCommand(row.table.name, _.keys(r), _.values(r));
         }
         if (row.state === rowState.deleted) {
             return this.sqlConn.getDeleteCommand(

@@ -417,6 +417,7 @@ DataAccess.prototype = {
     myReadFirstTable: function (query, raw) {
         var res = Deferred();
         ensureOpen(this, function (conn) {
+            console.log("myReadFirstTable - ensured open");
             //Qui conn.sqlConn.queryBatch è undefined
             return conn.sqlConn.queryBatch(query, raw)
             .progress(function (result) {
@@ -426,6 +427,8 @@ DataAccess.prototype = {
                 res.resolve(result);
             })
             .fail(function (err) {
+                console.log("myReadFirstTable - fail");
+                console.log(err);
                 res.reject(err);
             });
         });
@@ -1048,6 +1051,8 @@ function ensureOpen(conn, command) {
                 });
         })
         .fail(function (err) {
+            console.log("Ensure open failed ");
+            console.log(err);
             res.reject('Ensure Open:' + err);
         });
     return res.promise();

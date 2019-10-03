@@ -394,7 +394,7 @@ DataAccess.prototype = {
     myReadLastTable: function (query, raw) {
         var res = Deferred();
         ensureOpen(this, function (conn) {
-            return conn.sqlConn.queryBatch(query, raw)
+            return conn.sqlConn.edgeConnection.queryBatch(query, raw)
                 .done(function (result) {
                     res.resolve(result);
                 })
@@ -702,7 +702,7 @@ DataAccess.prototype = {
                 .then(function (filterSec) {
                         options.filter = filterSec;
                         var selCmd = conn.sqlConn.getSelectCommand(options);
-                        return conn.sqlConn.queryLines(selCmd, raw);
+                        return conn.sqlConn.edgeConnection.queryLines(selCmd, raw);
                     }
                 );
         });
@@ -812,7 +812,7 @@ DataAccess.prototype = {
     doGenericUpdate: function(cmd) {
         var res = Deferred();
         ensureOpen(this, function (conn) {
-            return conn.sqlConn.updateBatch(cmd)
+            return conn.sqlConn.edgeConnection.updateBatch(cmd)
                 .done(function (result) {
                     res.resolve(result);
                 })
@@ -893,7 +893,7 @@ DataAccess.prototype.queryPackets = function (opt, packetSize, raw) {
                     var opt    = _.clone(options);
                     opt.filter = filterSec;
                     var selCmd = conn.sqlConn.getSelectCommand(opt);
-                    conn.sqlConn.queryPackets(selCmd, raw, packetSize)
+                    conn.sqlConn.edgeConnection.queryPackets(selCmd, raw, packetSize)
                     .progress(function (r) {
                         if (r.meta) {
                             currTableInfo.columns   = r.meta;

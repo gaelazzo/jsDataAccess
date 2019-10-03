@@ -368,16 +368,12 @@ DataAccess.prototype = {
      * @returns {object}
      */
     myReadFirstValue: function( query) {
-        console.log("inside myReadFirstValue")
     var res = Deferred();
     this.myReadFirstTable( query)
         .done(function (result) {
-            console.log("myReadFirstValue - done");
             res.resolve(getAProperty(getObjectOrFirstRow(result)));
         })
         .fail(function (err) {
-            console.log("myReadFirstValue - failing");
-            console.log(err);
             res.reject(err);
         });
     return res.promise();
@@ -417,9 +413,7 @@ DataAccess.prototype = {
     myReadFirstTable: function (query, raw) {
         var res = Deferred();
         ensureOpen(this, function (conn) {
-            console.log("myReadFirstTable - ensured open");
             if (!conn.sqlConn.edgeConnection.queryBatch){
-                console.log(conn.sqlConn);
             }
             //Qui conn.sqlConn.queryBatch è undefined
             return conn.sqlConn.edgeConnection.queryBatch(query, raw)
@@ -430,8 +424,6 @@ DataAccess.prototype = {
                 res.resolve(result);
             })
             .fail(function (err) {
-                console.log("myReadFirstTable - fail");
-                console.log(err);
                 res.reject(err);
             });
         });
@@ -504,8 +496,6 @@ DataAccess.prototype = {
     doSingleInsert: function (table, columns, values) {
         var cmd = this.sqlConn.getInsertCommand(table, columns, values),
             res = Deferred();
-        console.log("doSingleInsert obtained command:");
-        console.log(cmd);
         this.doGenericUpdate( cmd)
             .done(function (val) {
                 //noinspection JSUnresolvedVariable
@@ -842,8 +832,6 @@ DataAccess.prototype = {
     myReadValue : function(options) {
         var opt = _.defaults({}, options, {columns: [this.getFormatter().toSql(options.expr, options.environment)]}),
             cmd = this.sqlConn.getSelectCommand(opt);
-        console.log("obtained command");
-        console.log(cmd);
         return this.myReadFirstValue( cmd);
     }
 
@@ -1199,7 +1187,7 @@ function doMultiSelect(conn, packetSize, cmd, aliasList, raw) {
             def.notify(packet);
         }
     }
-    conn.queryPackets(cmd, raw, packetSize)
+    conn.edgeConnection.queryPackets(cmd, raw, packetSize)
         .progress(function (r) {
             if (r.meta) {
                 currTableInfo.meta = r.meta;

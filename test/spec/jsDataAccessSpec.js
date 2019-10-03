@@ -174,7 +174,7 @@ describe('dataAccess', function () {
         done();
     });
 
-    it('readValue should return a single value', function (done) {
+    it('readSingleValue should return a single value', function (done) {
         DAC.readSingleValue({tableName: 'customer', expr: $dq.max($dq.field('idcustomer'))})
             .then(function (o) {
                 expect(o).toBeGreaterThan(1);
@@ -186,7 +186,7 @@ describe('dataAccess', function () {
             });
     });
 
-    it('readValue should return a single value', function (done) {
+    it('readSingleValue should return a single value', function (done) {
         DAC.readSingleValue({tableName: 'customer', expr: $dq.field('idcustomer'), orderBy: 'idcustomer asc'})
             .then(function (o) {
                 expect(o).toBe(1);

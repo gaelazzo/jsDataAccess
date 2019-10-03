@@ -368,12 +368,16 @@ DataAccess.prototype = {
      * @returns {object}
      */
     myReadFirstValue: function( query) {
+        console.log("inside myReadFirstValue")
     var res = Deferred();
     this.myReadFirstTable( query)
         .done(function (result) {
+            console.log("myReadFirstValue - done");
             res.resolve(getAProperty(getObjectOrFirstRow(result)));
         })
         .fail(function (err) {
+            console.log("myReadFirstValue - failing");
+            console.log(err);
             res.reject(err);
         });
     return res.promise();
@@ -494,6 +498,8 @@ DataAccess.prototype = {
     doSingleInsert: function (table, columns, values) {
         var cmd = this.sqlConn.getInsertCommand(table, columns, values),
             res = Deferred();
+        console.log("doSingleInsert obtained command:");
+        console.log(cmd);
         this.doGenericUpdate( cmd)
             .done(function (val) {
                 //noinspection JSUnresolvedVariable
@@ -830,6 +836,8 @@ DataAccess.prototype = {
     myReadValue : function(options) {
         var opt = _.defaults({}, options, {columns: [this.getFormatter().toSql(options.expr, options.environment)]}),
             cmd = this.sqlConn.getSelectCommand(opt);
+        console.log("obtained command");
+        console.log(cmd);
         return this.myReadFirstValue( cmd);
     }
 

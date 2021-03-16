@@ -6,6 +6,9 @@
   "scripts": {
     "test": "grunt test"
   },
+  "engines": {
+    "node": ">= 0.6"
+  },
   "dependencies": {
     "JQDeferred": "^2.1.0",
     "async": "~1.4.0",
@@ -16,20 +19,22 @@
   },
   "devDependencies": {
     "edge-js": "git://github.com/agracio/edge-js.git",
-    "grunt": "~1.0.4",
+    "grunt": "1.3.0",
     "grunt-contrib-watch": "1.0.0",
     "grunt-contrib-yuidoc": "1.0.0",
     "grunt-jasmine-node": "git+https://github.com/gaelazzo/grunt-jasmine-node.git",
-    "grunt-karma": "^0.10.1",
+    "grunt-karma": "^2.0.0",
     "jasmine-collection-matchers": "*",
-    "jasmine-core": "^2.99.1",
-    "jasmine-node": "2.0.0-beta4",
+    "jasmine-core": "3.6.0",
+    "jasmine-node": "3.0.0",
+    "jsDeferred": "git+https://github.com/gaelazzo/jsDeferred.git",
     "jsMySqlDriver": "git+https://github.com/gaelazzo/jsMySqlDriver.git",
-    "karma": "^4.3.0",
-    "karma-jasmine": "^0.3.5",
-    "karma-junit-reporter": "^0.2.2",
-    "karma-sauce-launcher": "^0.2.10",
-    "load-grunt-tasks": "^3.5.2",
+    "karma": "5.2.3",
+    "karma-chrome-launcher": "3.1.0",
+    "karma-jasmine": "4.0.1",
+    "karma-junit-reporter": "2.0.1",
+    "karma-sauce-launcher": "^1.2.0",
+    "load-grunt-tasks": "5.1.0",
     "time-grunt": "^1.4.0"
   },
   "repository": {

@@ -1,25 +1,23 @@
-
+/*globals expect  */
 'use strict';
 
 
+const DA = require('../../src/jsDataAccess');
 
-var DA = require('../../src/jsDataAccess');
-
-var mSel = require('jsMultiSelect');
-var Select = mSel.Select;
-var MultiCompare = mSel.MultiCompare;
-var _ = require('lodash');
-var fs = require('fs');
+const mSel = require('jsMultiSelect');
+const Select = mSel.Select;
+const MultiCompare = mSel.MultiCompare;
+const _ = require('lodash');
+const fs = require('fs');
 
 /**
  * @property $dq
  * @private
- * @type DataQuery
+ * @type jsDataQuery
  */
-
-var $dq = require('jsDataQuery');
-var DataAccess = DA;
-var Deferred = require("jsDeferred");
+const $dq = require('jsDataQuery');
+const DataAccess = DA;
+const Deferred = require("jsDeferred");
 
 /**
  * *****************************************************************************************
@@ -32,11 +30,10 @@ var Deferred = require("jsDeferred");
  *    "pwd": "db password"
  *  }
  */
-//PUT THE  FILENAME OF YOUR FILE HERE:
-var path = require("path");
+const path = require("path");
 
-var configName = path.join('test', 'db.json');
-var dbConfig;
+const configName = path.join('test', 'db.json');
+let dbConfig;
 if (process.env.TRAVIS){
     dbConfig = { "server": "127.0.0.1",
         "dbName": "test",
@@ -49,7 +46,7 @@ else {
 }
 
 
-var dbInfo = {
+const dbInfo = {
     good: {
         server: dbConfig.server,
         useTrustedConnection: false,
@@ -70,16 +67,16 @@ var dbInfo = {
 
 
 function getConnection(dbCode) {
-    var options = dbInfo[dbCode];
+    const options = dbInfo[dbCode];
     //console.log("getConnection("+dbCode+")");
     if (options) {
         options.dbCode = dbCode;
-        var sqlMod = require(options.sqlModule);
+        const sqlMod = require(options.sqlModule);
         //console.log("invoking  new sqlMod.Connection");
-        var conn= new sqlMod.Connection(options);  //è di tipo Connection quindi non ha queryBatch
+        return  new sqlMod.Connection(options);  //è di tipo Connection quindi non ha queryBatch
         //console.log("invoked  new sqlMod.Connection");
         //console.log(conn.edgeConnection.queryBatch);       //Function
-        return conn;
+        //return conn;
     }
     return undefined;
 }
@@ -91,12 +88,12 @@ function getConnection(dbCode) {
  * @returns {*}
  */
 function getDataAccess(dbCode) {
-    var q = Deferred(),
+    const q = Deferred(),
         sqlConn = getConnection(dbCode);    //Restituisce una Connection
     //console.log("getConnection result");
     //console.log(sqlConn.edgeConnection.queryBatch);       //Function
 
-    new DA.DataAccess({
+    let conn = new DA.DataAccess({
         sqlConn: sqlConn,
         errCallBack: function (err) {
             //console.log("errCallBack called")
@@ -113,7 +110,7 @@ function getDataAccess(dbCode) {
 }
 
 describe('setup dataBase', function () {
-    var sqlConn;
+    let sqlConn;
     beforeEach(function (done) {
         sqlConn = getConnection('good');
         sqlConn.open().
@@ -145,7 +142,7 @@ describe('setup dataBase', function () {
 });
 
 describe('dataAccess', function () {
-    var DAC;
+    let DAC;
     beforeEach(function (done) {
         DAC = undefined;
         getDataAccess('good')
@@ -163,7 +160,9 @@ describe('dataAccess', function () {
     });
 
     afterEach(function () {
-        if (DAC) DAC.destroy();
+        if (DAC) {
+            DAC.destroy();
+        }
     });
 
 
@@ -247,7 +246,7 @@ describe('dataAccess', function () {
     });
 
     it('doSingleInsert should have success', function (done) {
-        var res = DAC.doSingleDelete({
+        const res = DAC.doSingleDelete({
             tableName: 'customer',
             filter: $dq.and($dq.eq('idcustomer', 13000))
         });
@@ -281,8 +280,8 @@ describe('dataAccess', function () {
      END
      */
     it('callSP should get multiple tables ', function (done) {
-        var ntables = 0,
-            sizes = [100, 100, 40, 50];
+        let ntables = 0;
+        const sizes = [100, 100, 40, 50];
 
         DAC.callSP('testSP3', [2013])
             .progress(function (res) {
@@ -303,7 +302,7 @@ describe('dataAccess', function () {
 
 
     it('selectRows should give rows one at a time', function (done) {
-        var nRows = 0;
+        let nRows = 0;
         DAC.selectRows({
             tableName: 'customer',
             top: '10'
@@ -326,7 +325,7 @@ describe('dataAccess', function () {
 
 
     it('selectRows should give rows one at a time (raw)', function (done) {
-        var nRows = 0;
+        let nRows = 0;
         DAC.selectRows({
                 tableName: 'customer',
                 top: '10'
@@ -350,8 +349,8 @@ describe('dataAccess', function () {
 
     describe ('queryPackets', function() {
         it('queryPackets should give results', function (done) {
-            var nPackets = 0,
-                nRows    = 0;
+            let nPackets = 0,
+                nRows = 0;
             DAC.queryPackets({
                 tableName: 'customerkind',
                 top: '50'
@@ -374,8 +373,8 @@ describe('dataAccess', function () {
         });
 
         it('queryPackets should give results (raw)', function (done) {
-            var nPackets = 0,
-                nRows    = 0;
+            let nPackets = 0,
+                nRows = 0;
             DAC.queryPackets({
                 tableName: 'customerkind',
                 top: '50'
@@ -398,8 +397,8 @@ describe('dataAccess', function () {
         });
 
         it('queryPackets should give results (big packet)', function (done) {
-            var nPackets = 0,
-                nRows    = 0;
+            let nPackets = 0,
+                nRows = 0;
             DAC.queryPackets({
                 tableName: 'customer',
                 top: '50'
@@ -422,8 +421,8 @@ describe('dataAccess', function () {
         });
 
         it('queryPackets should not give results (empty result)', function (done) {
-            var nPackets = 0,
-                nRows    = 0;
+            let nPackets = 0,
+                nRows = 0;
             DAC.queryPackets({
                 tableName: 'customer',
                 filter: $dq.eq('idcustomer', -12),
@@ -445,8 +444,8 @@ describe('dataAccess', function () {
         });
 
         it('queryPackets should not give results (empty result) (raw)', function (done) {
-            var nPackets = 0,
-                nRows    = 0;
+            let nPackets = 0,
+                nRows = 0;
             DAC.queryPackets({
                 tableName: 'customer',
                 filter: $dq.eq('idcustomer', -12),
@@ -477,7 +476,7 @@ describe('dataAccess', function () {
 
                 DAC.runSql('select  * from customer where idcustomer<2000 limit 3', true)
                     .done(function (res) {
-                        var obj = DA.objectify(res.meta, res.rows);
+                        const obj = DA.objectify(res.meta, res.rows);
                         expect(res.rows.length).toBe(3);
                         expect(obj).toEqual(jasmine.any(Array));
                         expect(obj.length).toBe(3);
@@ -518,7 +517,7 @@ describe('dataAccess', function () {
     });
 
     it('select should give a table', function (done) {
-        var sel = DAC.select({
+        const sel = DAC.select({
             tableName: 'customer',
             columns: 'idcustomer,name',
             applySecurity: false
@@ -530,17 +529,17 @@ describe('dataAccess', function () {
             expect(result[0].idcustomer).toBeDefined();
             expect(result[0].name).toBeDefined();
             done();
-        })
+        });
     });
 
     describe ('multiSelect', function() {
         it('multiSelect should give multiple tables', function (done) {
-            var multiSel   = [],
-                tableCount = 0;
+            const multiSel = [];
+            let tableCount = 0;
             multiSel.push(new Select('*').from('customer').multiCompare(new MultiCompare(['idcustomer'], [2])));
             multiSel.push(new Select('*').from('customerkind').multiCompare(new MultiCompare(['idcustomerkind'], [3])));
             multiSel.push(new Select('*').from('sellerkind'));
-            var mSel = DAC.multiSelect({selectList: multiSel});
+            const mSel = DAC.multiSelect({selectList: multiSel});
             mSel.progress(function () {
                 tableCount += 1;
             });
@@ -556,14 +555,14 @@ describe('dataAccess', function () {
         });
 
         it('multiSelect should give tables with alias', function (done) {
-            var multiSel   = [],
-                tableCount = 0,
-                tables     = {};
+            const multiSel = [];
+            let tableCount = 0;
+            const tables = {};
             multiSel.push(new Select('*').from('customer')
             .multiCompare(new MultiCompare(['cat'], [4])).intoTable('A').top('5'));
             multiSel.push(new Select('*').from('seller').multiCompare(new MultiCompare(['idseller'], [1])).intoTable('B'));
             multiSel.push(new Select('*').from('customerkind'));
-            var mSel = DAC.multiSelect({selectList: multiSel});
+            const mSel = DAC.multiSelect({selectList: multiSel});
             mSel.progress(function (r) {
                 tableCount += 1;
                 expect(r.rows).toEqual(jasmine.any(Array));
@@ -591,14 +590,14 @@ describe('dataAccess', function () {
         });
 
         it('multiSelect should give tables with alias (raw)', function (done) {
-            var multiSel   = [],
-                tableCount = 0,
-                tables     = {};
+            const multiSel = [];
+            let tableCount = 0;
+            const tables = {};
             multiSel.push(new Select('*').from('customer')
             .multiCompare(new MultiCompare(['cat'], [2])).intoTable('A').top('5'));
             multiSel.push(new Select('*').from('seller').multiCompare(new MultiCompare(['idseller'], [3])).intoTable('B'));
             multiSel.push(new Select('*').from('customerkind'));
-            var mSel = DAC.multiSelect({selectList: multiSel, raw: true});
+            const mSel = DAC.multiSelect({selectList: multiSel, raw: true});
             mSel.progress(function (r) {
                 tableCount += 1;
                 expect(r.rows).toEqual(jasmine.any(Array));
@@ -628,14 +627,14 @@ describe('dataAccess', function () {
         });
 
         it('multiSelect should give tables with alias - packeting', function (done) {
-            var multiSel   = [],
-                tableCount = 0,
-                tables     = {};
+            const multiSel = [];
+            let tableCount = 0;
+            const tables = {};
             multiSel.push(new Select('*').from('customer')
             .multiCompare(new MultiCompare(['cat20'], [2])).intoTable('A'));
             multiSel.push(new Select('*').from('seller').multiCompare(new MultiCompare(['idseller'], [6])).intoTable('B'));
             multiSel.push(new Select('*').from('customerkind'));
-            var mSel = DAC.multiSelect({selectList: multiSel, packetSize: 5});
+            const mSel = DAC.multiSelect({selectList: multiSel, packetSize: 5});
             mSel.progress(function (r) {
                 if (!tables[r.tableName]) {
                     tableCount += 1;
@@ -668,14 +667,14 @@ describe('dataAccess', function () {
 
 
         it('multiSelect should give tables with alias - packeting raw', function (done) {
-            var multiSel   = [],
-                tableCount = 0,
-                tables     = {};
+            const multiSel = [];
+            let tableCount = 0;
+            const tables = {};
             multiSel.push(new Select('*').from('customer')
             .multiCompare(new MultiCompare(['cat20'], [2])).intoTable('A'));
             multiSel.push(new Select('*').from('seller').multiCompare(new MultiCompare(['idseller'], [6])).intoTable('B'));
             multiSel.push(new Select('*').from('customerkind'));
-            var mSel = DAC.multiSelect({selectList: multiSel, packetSize: 5, raw: true});
+            const mSel = DAC.multiSelect({selectList: multiSel, packetSize: 5, raw: true});
             mSel.progress(function (r) {
                 if (!tables[r.tableName]) {
                     tableCount += 1;
@@ -711,7 +710,7 @@ describe('dataAccess', function () {
 
 
 describe('destroy dataBase', function () {
-    var sqlConn;
+    let sqlConn;
     beforeEach(function (done) {
         sqlConn = getConnection('good');
         sqlConn.open().

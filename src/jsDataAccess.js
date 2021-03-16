@@ -1,4 +1,4 @@
-'use strict';
+/*global securityProvider,SqlDriver,sqlFun,Environment */
 /*jslint nomen: true*/
 /*jslint bitwise: true */
 
@@ -6,41 +6,40 @@
  * provides facilities to access a database without knowing exactly the database type or implementation details
  * @module DataAccess
  */
-
-var  jsDataSet = require('jsDataSet'),
+const jsDataSet = require('jsDataSet'),
     DataTable = jsDataSet.DataTable;
 
 /**
  *
- * @type {Deferred}
+ * @type function Deferred
  */
-    var Deferred = require("jsDeferred");
-    var _ = require('lodash');
-    var multiSelect = require('jsMultiSelect');
-    var async = require('async');
+const Deferred = require("jsDeferred");
+const _ = require('lodash');
+const multiSelect = require('jsMultiSelect');
+const async = require('async');
 
 /**
  * @private
  * @property {jsDataQuery} $dq
  */
-var $dq = require('jsDataQuery');
+const $dq = require('jsDataQuery');
 
 /**
  *
- * @type dataRowState
+ * @type {detached: string, deleted: string, added: string, unchanged: string, modified: string}
  */
-var    rowState = jsDataSet.dataRowState;
+const rowState = jsDataSet.dataRowState;
 
 
 /**
  * All isolation level possible, may not be present in some db. In that case, the driver for that db will default into
  *  some other similar available level depending on the DBMS capabilities.
- * @enum IsolationLevels
+ * @enum isolationLevels
  * @static
  * @property isolationLevels
  * @type {object} readUncommitted|readCommitted|repeatableRead|snapshot|serializable
  */
-var isolationLevels = {
+const isolationLevels = {
     readUncommitted: 'READ_UNCOMMITTED',
     readCommitted: 'READ_COMMITTED',
     repeatableRead: 'REPEATABLE_READ',
@@ -70,15 +69,14 @@ var isolationLevels = {
  */
 function DataAccess(options) {
 
-    var that = this;
+    const that = this;
 
     /**
      * @property tempSqlConn
      * @private
      * @type {Connection}
      */
-    var tempSqlConn = options.sqlConn;
-
+    const tempSqlConn = options.sqlConn;
 
 
     /**
@@ -95,7 +93,6 @@ function DataAccess(options) {
     that.sqlConn = null;
     that.security=null;
 
-   
     this.nesting = 0; //open / close nesting level: every open increments nesting by one, while close decrements it
 
     this.persisting = options.persisting === undefined ? true : options.persisting;
@@ -110,7 +107,7 @@ function DataAccess(options) {
     Object.defineProperty(this, "lastError", {
         get: function () {
             //noinspection JSUnresolvedVariable         Webstorm Bug
-            var s = that.myLastError;
+            let s = that.myLastError;
             that.lastError = null;
             return s;
         },
@@ -144,7 +141,7 @@ function DataAccess(options) {
                     that.close();
                 })
                 .fail(function (err) {
-                    that.lastError = 'Error getting security information:' + err.toString();
+                    that.lastError = "Error getting security information:" + err.toString();
                     if (options.errCallBack) {
                         options.errCallBack(err);
                     }
@@ -164,7 +161,7 @@ function DataAccess(options) {
                 getSecurity(conn);
             })
             .fail(function (err) {
-                that.lastError = 'Error opening database:' + err.toString();
+                that.lastError = "Error opening database:" + err.toString();
                 if (options.errCallBack) {
                     options.errCallBack(err);
                 }
@@ -219,8 +216,8 @@ DataAccess.prototype = {
      * @returns {object}  promise to DataAccess
      */
     clone: function () {
-        var usr  = this.externalUser;
-        var res = Deferred();
+        const usr = this.externalUser;
+        const res = Deferred();
         new DataAccess(this.sqlConn.clone())
             .then(function (DA) {
                 DA.externalUser = usr;
@@ -268,8 +265,8 @@ DataAccess.prototype = {
      * @returns {promise}
      */
     open: function () {
-        var that = this,
-            res;
+        const that = this;
+        let res;
         if (this.nesting > 0) {
             this.nesting += 1;
             return Deferred().resolve().promise();
@@ -301,7 +298,7 @@ DataAccess.prototype = {
             }
             return Deferred().resolve().promise();
         }
-        var that = this,
+        const that = this,
             res = this.sqlConn.close();
         res.done(function () {
             that.nesting = 0;
@@ -347,7 +344,7 @@ DataAccess.prototype = {
      * @returns {object}
      */
     readLastValue: function (query) {
-        var res = Deferred();
+        const res = Deferred();
         this.myReadLastTable( query)
             .done(function (result) {
                 res.resolve(getAProperty(getObjectOrLastRow(result)));
@@ -368,8 +365,8 @@ DataAccess.prototype = {
      * @returns {object}
      */
     myReadFirstValue: function( query) {
-    var res = Deferred();
-    this.myReadFirstTable( query)
+        const res = Deferred();
+        this.myReadFirstTable( query)
         .done(function (result) {
             res.resolve(getAProperty(getObjectOrFirstRow(result)));
         })
@@ -388,7 +385,7 @@ DataAccess.prototype = {
      * @returns {Array}
      */
     myReadLastTable: function (query, raw) {
-        var res = Deferred();
+        const res = Deferred();
         ensureOpen(this, function (conn) {
             return conn.sqlConn.queryBatch(query, raw)
                 .done(function (result) {
@@ -411,9 +408,10 @@ DataAccess.prototype = {
      * @returns {Array}
      */
     myReadFirstTable: function (query, raw) {
-        var res = Deferred();
+        const res = Deferred();
         ensureOpen(this, function (conn) {
             if (!conn.sqlConn.queryBatch){
+
             }
             //Qui conn.sqlConn.queryBatch è undefined
             return conn.sqlConn.queryBatch(query, raw)
@@ -467,7 +465,7 @@ DataAccess.prototype = {
      * @returns {promise}
      */
     doSingleDelete: function (options) {
-        var cmd = this.sqlConn.getDeleteCommand(options),
+        const cmd = this.sqlConn.getDeleteCommand(options),
             res = Deferred();
         this.doGenericUpdate(cmd)
             .done(function (val) {
@@ -494,7 +492,7 @@ DataAccess.prototype = {
      * @returns {promise}
      */
     doSingleInsert: function (table, columns, values) {
-        var cmd = this.sqlConn.getInsertCommand(table, columns, values),
+        const cmd = this.sqlConn.getInsertCommand(table, columns, values),
             res = Deferred();
         this.doGenericUpdate( cmd)
             .done(function (val) {
@@ -523,7 +521,7 @@ DataAccess.prototype = {
      * @returns {promise}
      */
     doSingleUpdate: function (options) {
-        var cmd = this.sqlConn.getUpdateCommand(options),
+        const cmd = this.sqlConn.getUpdateCommand(options),
             res = Deferred();
         this.doGenericUpdate( cmd)
             .done(function (val) {
@@ -550,9 +548,9 @@ DataAccess.prototype = {
      * @return {string|null}
      */
     getPostCommand: function (r, optimisticLocking, environment) {
-        var row = r.getRow();
+        const row = r.getRow();
         if (row.state === rowState.modified) {
-            var modifiedFields = row.getModifiedFields();
+            const modifiedFields = row.getModifiedFields();
             return this.sqlConn.getUpdateCommand(
                 {
                     table: row.table.name,
@@ -637,7 +635,7 @@ DataAccess.prototype = {
      * @param {boolean} [raw=false] if raw, data returned is not objectified
      */
     select: function (opt, raw) {
-        var def = Deferred(),
+        const def = Deferred(),
             that = this,
             options = _.defaults(opt, {columns: '*', applySecurity: true, filter: null});
 
@@ -649,7 +647,7 @@ DataAccess.prototype = {
         this.getFilterSecured(options.filter, options.applySecurity, options.tableName, options.environment)
             .then(function (filterSec) {
                     options.filter = filterSec;
-                    var selCmd = that.sqlConn.getSelectCommand(options);
+                    const selCmd = that.sqlConn.getSelectCommand(options);
                     that.runSql(selCmd, raw)
                         .done(function (dataRead) {
                             dataRead.tableName = options.alias || options.tableName;
@@ -686,13 +684,13 @@ DataAccess.prototype = {
      * @param {boolean} [raw=false] if raw=true, data returned is not objectified
      */
     selectRows: function (opt, raw) {
-        var options = _.defaults(opt, {columns: '*', applySecurity: true, filter: null});
+        const options = _.defaults(opt, {columns: '*', applySecurity: true, filter: null});
         return ensureOpen(this, function (conn) {
             return conn.getFilterSecured(options.filter, options.applySecurity, options.tableName, options.environment)
                 .then(function (filterSec) {
                         options.filter = filterSec;
-                        var selCmd = conn.sqlConn.getSelectCommand(options);
-                        return conn.sqlConn.queryLines(selCmd, raw);
+                    const selCmd = conn.sqlConn.getSelectCommand(options);
+                    return conn.sqlConn.queryLines(selCmd, raw);
                     }
                 );
         });
@@ -710,7 +708,7 @@ DataAccess.prototype = {
      * @returns {sqlFun}
      */
     getFilterSecured: function (filter, applySecurity, tableName, environment) {
-        var def = Deferred();
+        const def = Deferred();
         if (filter && filter.isFalse) {
             def.resolve(filter);
             return def.promise();
@@ -743,7 +741,7 @@ DataAccess.prototype = {
      * @param {boolean} [options.applySecurity=true] if true,   security condition is appended to filter
      */
     selectIntoTable: function (options) {
-        var opt = _.defaults(options),
+        const opt = _.defaults(options),
             def = Deferred();
         opt.columns = options.columns || options.table.columnList();
         opt.tableName = options.table.tableForReading();
@@ -800,7 +798,7 @@ DataAccess.prototype = {
      * @returns {promise}
      */
     doGenericUpdate: function(cmd) {
-        var res = Deferred();
+        const res = Deferred();
         ensureOpen(this, function (conn) {
             return conn.sqlConn.updateBatch(cmd)
                 .done(function (result) {
@@ -830,7 +828,7 @@ DataAccess.prototype = {
      * @returns {object}
      */
     myReadValue : function(options) {
-        var opt = _.defaults({}, options, {columns: [this.getFormatter().toSql(options.expr, options.environment)]}),
+        const opt = _.defaults({}, options, {columns: [this.getFormatter().toSql(options.expr, options.environment)]}),
             cmd = this.sqlConn.getSelectCommand(opt);
         return this.myReadFirstValue( cmd);
     }
@@ -860,7 +858,7 @@ DataAccess.prototype = {
  * @param {boolean} [raw=false]
  */
 DataAccess.prototype.queryPackets = function (opt, packetSize, raw) {
-    var currTableInfo = {},
+    const currTableInfo = {},
         def = Deferred(),
         options = _.defaults(opt, {columns: '*', applySecurity: true, filter: null}),
         tableName = opt.alias || opt.tableName;
@@ -872,16 +870,17 @@ DataAccess.prototype.queryPackets = function (opt, packetSize, raw) {
             def.notify({tableName: tableName, rows: packet});
         }
     }
-    var that = this;
+
+    const that = this;
 
     process.nextTick(function() {
         ensureOpen(that, function (conn) {
             return conn.getFilterSecured(options.filter, options.applySecurity, options.tableName, options.environment)
             .then(function (filterSec) {
-                    var opt    = _.clone(options);
-                    opt.filter = filterSec;
-                    var selCmd = conn.sqlConn.getSelectCommand(opt);
-                    conn.sqlConn.queryPackets(selCmd, raw, packetSize)
+                const opt = _.clone(options);
+                opt.filter = filterSec;
+                const selCmd = conn.sqlConn.getSelectCommand(opt);
+                conn.sqlConn.queryPackets(selCmd, raw, packetSize)
                     .progress(function (r) {
                         if (r.meta) {
                             currTableInfo.columns   = r.meta;
@@ -915,13 +914,13 @@ DataAccess.prototype.queryPackets = function (opt, packetSize, raw) {
  * @return {object[]}
  */
 DataAccess.prototype.multiSelect = function (options) {
-    var def = Deferred();
+    const def = Deferred();
     if (options.selectList.length === 0) {
         def.resolve();
         return def.promise();
     }
 
-    var selList = multiSelect.groupSelect(options.selectList),
+    const selList = multiSelect.groupSelect(options.selectList),
         opt = _.defaults(options, {applySecurity: true, filter: null, packetSize: 0}),
         that = this;
 
@@ -945,7 +944,7 @@ DataAccess.prototype.multiSelect = function (options) {
         function (err, resultList) {
             // resultList is an array of {alias, sql} couples
             //obtains cmd as a concatenation of all sql fields in result list
-            var cmd = that.sqlConn.appendCommands(_.map(resultList, 'sql'));
+            const cmd = that.sqlConn.appendCommands(_.map(resultList, 'sql'));
             doMultiSelect(that.sqlConn, options.packetSize, cmd, _.map(resultList, 'alias'), opt.raw)
                 .done(function (res) {
                     def.resolve(res);
@@ -972,7 +971,7 @@ DataAccess.prototype.multiSelect = function (options) {
  * @return {*}
  */
 DataAccess.prototype.mergeMultiSelect = function (selectList, ds, environment) {
-    var def = Deferred();
+    const def = Deferred();
     this.multiSelect({
             selectList: selectList,
             applySecurity: (environment !== undefined),
@@ -980,7 +979,7 @@ DataAccess.prototype.mergeMultiSelect = function (selectList, ds, environment) {
         })
         .progress(function (data) {
             //data is an object: {tableName: string, set: number, rows : object[]}
-            var table = ds.tables[data.tableName];
+            const table = ds.tables[data.tableName];
             table.mergeArray(data.rows, true);
         })
         .done(function (data) {
@@ -1010,11 +1009,11 @@ DataAccess.prototype.mergeMultiSelect = function (selectList, ds, environment) {
  * @returns {promise}
  */
 function ensureOpen(conn, command) {
-    var res = Deferred(),
-        savedOutput;
+    const res = Deferred();
+    let savedOutput;
     conn.open()
         .then(function () {
-            var myRes = Deferred();
+            const myRes =  Deferred();
             try {
                 command(conn)
                     .done(function (o) {
@@ -1091,7 +1090,7 @@ function getObjectOrLastRow(res) {
  * @returns {object}
  */
 function getAProperty(obj) {
-    var i;
+    let i;
     for (i in obj) {
         if (obj.hasOwnProperty(i)) {
             return obj[i];
@@ -1115,7 +1114,7 @@ function getAProperty(obj) {
  * @param {object} r
  */
 function mergeRowIntoTable(table, r) {
-    var rFound = _.filter(table.rows, _.pick(r, table.key()));
+    const rFound = _.filter(table.rows, _.pick(r, table.key()));
     if (rFound.length > 0) {
         rFound[0].getRow().detach();
     }
@@ -1133,7 +1132,7 @@ function mergeRowIntoTable(table, r) {
  * @returns {object}
  */
 DataAccess.prototype.selectCount = function (options) {
-    var def = Deferred(),
+    const def = Deferred(),
         that = this,
         opt = _.defaults(options, {applySecurity: true, filter: null});
     this.getFilterSecured(opt.filter, opt.applySecurity, opt.tableName, opt.environment)
@@ -1143,8 +1142,8 @@ DataAccess.prototype.selectCount = function (options) {
                 return;
             }
             opt.filter = filterSec;
-            var selCmd = that.sqlConn.getSelectCount(opt);
-            that.runCmd(selCmd)
+                const selCmd = that.sqlConn.getSelectCount(opt);
+                that.runCmd(selCmd)
                 .done(function (count) {
                     def.resolve(count);
                 })
@@ -1175,7 +1174,7 @@ DataAccess.prototype.selectCount = function (options) {
  * {meta} is an array of column enriched with a property tableName taken from the aliasList
  */
 function doMultiSelect(conn, packetSize, cmd, aliasList, raw) {
-    var def = Deferred(),
+    const def = Deferred(),
         currTableInfo = {},
         currSet = -1;
 
@@ -1219,7 +1218,7 @@ function objectify(colNames, rows) {
         return objectify(colNames.meta, colNames.rows);
     }
     return _.map(rows, function (el) {
-        var obj = {};
+        const obj = {};
         _.each(colNames, function (value, index) {
             obj[value] = el[index];
         });

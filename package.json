@@ -15,7 +15,7 @@
     "jsDataQuery": "git+https://github.com/gaelazzo/jsDataQuery.git",
     "jsDataSet": "git+https://github.com/gaelazzo/jsDataSet.git",
     "jsMultiSelect": "git+https://github.com/gaelazzo/jsMultiSelect.git",
-    "lodash": "4.17.15"
+    "lodash": "4.17.19"
   },
   "devDependencies": {
     "edge-js": "git://github.com/agracio/edge-js.git",

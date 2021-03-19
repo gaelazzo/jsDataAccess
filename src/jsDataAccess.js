@@ -1025,7 +1025,7 @@ function ensureOpen(conn, command) {
                         res.notify(o);
                     })
                     .fail(function (err) {
-                        myRes.reject(err);
+                        myRes.reject("executing "+command.name+" "+ err);
                     });
             } catch (err) {
                 myRes.reject(err);
@@ -1042,9 +1042,7 @@ function ensureOpen(conn, command) {
                 });
         })
         .fail(function (err) {
-            console.log("Ensure open failed ");
-            console.log(err);
-            res.reject('Ensure Open:' + err);
+            res.reject(err);
         });
     return res.promise();
 }

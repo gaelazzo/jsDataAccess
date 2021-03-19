@@ -1,6 +1,6 @@
 {
   "name": "jsDataAccess",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Facilities to access a database without knowing exactly the database type or implementation details",
   "main": "src/jsDataAccess.js",
   "scripts": {

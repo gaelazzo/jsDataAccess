@@ -13,7 +13,7 @@ const jsDataSet = require('jsDataSet'),
  *
  * @type function Deferred
  */
-const Deferred = require("jsDeferred");
+const Deferred = require("jQDeferred");
 const _ = require('lodash');
 const multiSelect = require('jsMultiSelect');
 const async = require('async');
@@ -411,9 +411,10 @@ DataAccess.prototype = {
         const res = Deferred();
         ensureOpen(this, function (conn) {
             if (!conn.sqlConn.queryBatch){
-
+                //Qui conn.sqlConn.queryBatch è undefined
+                res.reject("conn.sqlConn.queryBatch is undefined");
+                return;
             }
-            //Qui conn.sqlConn.queryBatch è undefined
             return conn.sqlConn.queryBatch(query, raw)
             .progress(function (result) {
                 res.resolve(result);

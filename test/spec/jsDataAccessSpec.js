@@ -17,7 +17,7 @@ const fs = require('fs');
  */
 const $dq = require('jsDataQuery');
 const DataAccess = DA;
-const Deferred = require("jsDeferred");
+const Deferred = require("JQDeferred");
 
 /**
  * *****************************************************************************************

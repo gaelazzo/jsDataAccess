@@ -13,7 +13,7 @@ const jsDataSet = require('jsDataSet'),
  *
  * @type function Deferred
  */
-const Deferred = require("jQDeferred");
+const Deferred = require("JQDeferred");
 const _ = require('lodash');
 const multiSelect = require('jsMultiSelect');
 const async = require('async');
@@ -64,7 +64,7 @@ const isolationLevels = {
  *  errCallBack function will be called with the error as parameter
  * @param {Function} [options.doneCallBack]  optional callback to be called when connection is established
  *  the doneCallBack will be called with (this) Connection as parameter
- * @param {boolean|undefined} [options.persisting=true] if true the connection will stay open until one explicitely closes it
+ * @param {boolean|undefined} [options.persisting=true] if true the connection will stay open until one explicitly closes it
  * @param {securityProvider} options.securityProv
  */
 function DataAccess(options) {
@@ -126,7 +126,7 @@ function DataAccess(options) {
         if (!options.securityProv) {
             if (options.doneCallBack) {
                 that.constructor = DataAccess;
-                options.doneCallBack(that); //that.sqlConn.prototype dovrebbe essere valorizzato
+                options.doneCallBack(that); //that.sqlConn.prototype should be already set
             }
         }
         else {
@@ -136,7 +136,7 @@ function DataAccess(options) {
                     that.security = security;
                     if (options.doneCallBack) {
                         that.constructor = DataAccess;
-                        options.doneCallBack(that); //that.sqlConn.prototype dovrebbe essere valorizzato
+                        options.doneCallBack(that); //that.sqlConn.prototype should be already set
                     }
                     that.close();
                 })

@@ -27,7 +27,6 @@
     "jasmine-collection-matchers": "*",
     "jasmine-core": "3.6.0",
     "jasmine-node": "3.0.0",
-    "jsDeferred": "git+https://github.com/gaelazzo/jsDeferred.git",
     "jsMySqlDriver": "git+https://github.com/gaelazzo/jsMySqlDriver.git",
     "karma": "5.2.3",
     "karma-chrome-launcher": "3.1.0",

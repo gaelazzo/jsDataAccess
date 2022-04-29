@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "JQDeferred": "^2.1.0",
-    "async": "~1.4.0",
+    "async": "~2.6.4",
     "jsDataQuery": "git+https://github.com/gaelazzo/jsDataQuery.git",
     "jsDataSet": "git+https://github.com/gaelazzo/jsDataSet.git",
     "jsMultiSelect": "git+https://github.com/gaelazzo/jsMultiSelect.git",

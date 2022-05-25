@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "edge-js": "git://github.com/agracio/edge-js.git",
-    "grunt": "1.3.0",
+    "grunt": "1.5.3",
     "grunt-contrib-watch": "1.0.0",
     "grunt-contrib-yuidoc": "1.0.0",
     "grunt-jasmine-node": "git+https://github.com/gaelazzo/grunt-jasmine-node.git",
